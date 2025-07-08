@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Movie Collection</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css" />
+    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/default/bulmaswatch.min.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <%- include('partials/_navbar') %>
+
+    <!-- Main Content -->
+    <main class="container mt-6">
+
+      <% if (user) { %>
+        <h2 class="has-text-centered mb-5">
+          Welcome, <%= user.username %>, you have <%= movieCount %> movie<%= movieCount === 1 ? '' : 's' %> in your collection 🎬  
+        </h2>
+
+        <!-- Collection Stats -->
+        <% if (movies.length > 0) { 
+            const avgRating = (movies.reduce((sum, m) => sum + (m.rating || 0), 0) / movieCount).toFixed(1);
+            const genreCount = [...new Set(movies.map(m => m.genre?.name).filter(Boolean))].length;
+
+            const genreFreq = {};
+            movies.forEach(m => {
+              const genreName = m.genre?.name;
+              if (genreName) {
+                genreFreq[genreName] = (genreFreq[genreName] || 0) + 1;
+              }
+            });
+
+            const mostWatchedGenre = Object.entries(genreFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+        %>
+          <section class="movie-stats box mb-6">
+            <h3 class="title is-4">📊 Collection Stats</h3>
+            <ul>
+              <li><strong>Total Movies:</strong> <%= movieCount %></li>
+              <li><strong>Average Rating:</strong> <%= avgRating %></li>
+            </ul>
+          </section>
+        <% } %>
+
+        <!-- Recently Added -->
+        <% if (movies.length > 0) { %>
+          <section class="recent-movies box mb-6">
+            <h3 class="title is-4">🆕 Recently Added</h3>
+            <ul>
+              <% movies.slice(-3).reverse().forEach(m => { %>
+                <li>
+                  <a href="/movies/<%= m._id %>"><%= m.title %></a> (<%= m.releaseYear || m.year || 'N/A' %>)
+                </li>
+              <% }) %>
+            </ul>
+          </section>
+        <% } %>
+
+        <!-- Top Rated Movies -->
+        <% if (movies.length > 0) { 
+            const topRatedMovies = movies.sort((a, b) => b.rating - a.rating).slice(0, 3);
+        %>
+          <section class="top-rated-movies box mb-6">
+            <h3 class="title is-4">🌟 Top Rated Movies</h3>
+            <ul>
+              <% topRatedMovies.forEach(m => { %>
+                <li>
+                  <a href="/movies/<%= m._id %>"><%= m.title %></a> - Rating: <%= m.rating %>
+                </li>
+              <% }) %>
+            </ul>
+          </section>
+        <% } %>
+
+      <% } else { %>
+        <!-- Guest View -->
+        <section class="hero is-light is-bold mb-6">
+          <div class="hero-body">
+            <div class="container has-text-centered">
+              <h1 class="title is-2 mb-4">🎥 Welcome to Scene It</h1>
+              <p class="subtitle is-5 mb-5">
+                Your personal library for tracking and reviewing films.
+              </p>
+              <a href="/auth/sign-in" class="button is-primary is-medium">
+                Sign in to get started
+              </a>
+            </div>
+          </div>
+        </section>
+      <% } %>
+    </main>
+  </body>
+</html>

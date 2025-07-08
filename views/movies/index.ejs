@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie App</title>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/stylesheets/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/default/bulmaswatch.min.css" />
+</head>
+<body>
+  <!-- Navbar -->
+  <%- include('../partials/_navbar') %>
+
+  <!-- Header -->
+  <header class="mb-5"> 
+    <div class="container">
+      <h1 class="title is-1 has-text-centered">
+        You have <%= movieCount %> movie<%= movieCount === 1 ? '' : 's' %> in your collection 🎬
+      </h1>
+    </div>
+  </header>
+
+  <!-- Movie Grid -->
+  <main class="container">
+    <div class="movie-grid">
+      <% movies.forEach(movie => {
+          const posterFilename = movie.title
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w\-]/g, '') + '.png';
+      %>
+        <div class="movie-card">
+          <div class="movie-card-content">
+            <!-- Poster Image -->
+            <img
+              src="/images/posters/<%= posterFilename %>"
+              alt="<%= movie.title %> poster"
+              class="movie-card-poster"
+              onerror="this.onerror=null;this.src='/images/posters/placeholder.png';"
+            />
+
+            <!-- Movie Info -->
+            <div class="movie-card-info">
+              <p class="title is-4 mb-1">
+                <a href="/movies/<%= movie._id %>"><%= movie.title %></a>
+              </p>
+              <p class="subtitle is-6">Directed by: <%= movie.director %></p>
+              <p class="has-text-grey">
+                Genre: <%= movie.genre && movie.genre.name ? movie.genre.name : (movie.genre || 'N/A') %>
+              </p>
+              <p class="has-text-grey">Released: <%= movie.releaseYear %></p>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= movie.title %> - Details</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/default/bulmaswatch.min.css" />
+</head>
+<body>
+  <!-- Full-width Navbar -->
+  <%- include('../partials/_navbar') %>
+
+  <!-- Main Content -->
+  <main class="container mt-5">
+    <div class="movie-detail-wrapper">
+      <!-- Poster Image -->
+      <%
+        const posterFilename = movie.title
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w\-]/g, '') + '.png';
+
+        const badgeColorClass = movie.rating >= 8 ? 'high'
+                              : movie.rating >= 5 ? 'mid'
+                              : movie.rating > 0  ? 'low'
+                              : '';
+      %>
+      <img
+        src="/images/posters/<%= posterFilename %>"
+        alt="Poster for <%= movie.title %> directed by <%= movie.director %>"
+        class="movie-poster"
+        onerror="this.onerror=null;this.src='/images/posters/placeholder.png';"
+      />
+
+      <!-- Movie Info -->
+      <div class="movie-info">
+        <h1><%= movie.title %></h1>
+
+        <p><strong>Director:</strong> <%= movie.director %></p>
+        <p><strong>Release Year:</strong> <%= movie.releaseYear || movie.year %></p>
+        <p><strong>Genre:</strong> <%= movie.genre?.name || movie.genre || 'N/A' %></p>
+
+        <!-- Rating Section -->
+        <div class="rating-container mt-4">
+          <h3 class="title is-5 has-text-weight-semibold mb-2">My Score</h3>
+
+          <% 
+            const ratingLabels = {
+              1: 'Awful',
+              2: 'Bad',
+              3: 'Poor',
+              4: 'Watchable',
+              5: 'Okay',
+              6: 'Good',
+              7: 'Very Good',
+              8: 'Great',
+              9: 'Excellent',
+              10: 'Masterpiece'
+            };
+            const ratingText = ratingLabels[movie.rating] || 'No rating';
+          %>
+
+          <p class="rating-label has-text-weight-semibold mb-2"><%= ratingText %></p>
+
+          <div class="rating-display mb-3">
+            <div class="rating-badge <%= badgeColorClass %>"><%= movie.rating %></div>
+          </div>
+
+          <div class="rating-steps is-static" aria-label="Movie rating">
+            <% for (let i = 1; i <= 10; i++) {
+                 const isActive = i <= movie.rating;
+                 const stepColorClass = movie.rating >= 8 ? 'high'
+                                       : movie.rating >= 5 ? 'mid'
+                                       : movie.rating > 0  ? 'low'
+                                       : '';
+            %>
+              <div
+                class="rating-step <%= isActive ? `active ${stepColorClass}` : '' %>"
+                data-score="<%= i %>"
+                title="<%= i %>"
+                aria-hidden="true"
+              ></div>
+            <% } %>
+          </div>
+        </div>
+        
+        <!-- Review -->
+        <% if (movie.review && movie.review.trim()) { %>
+          <p><strong>Review:</strong> <%= movie.review %></p>
+        <% } else { %>
+          <p><strong>Review:</strong> No review written.</p>
+        <% } %>
+
+        <!-- Buttons -->
+        <div class="buttons">
+          <form action="/users/<%= user._id %>/movies/<%= movie._id %>/edit" method="GET">
+            <button class="button is-info" type="submit">Edit Movie</button>
+          </form>
+
+          <form action="/users/<%= user._id %>/movies/<%= movie._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to delete this movie?');">
+            <button class="button is-danger" type="submit">Delete Movie</button>
+          </form>
+        </div>
+
+        <!-- Back Link -->
+        <a class="button is-light is-small mt-3" href="/users/<%= user._id %>/movies">
+          ← Back to My Movies
+        </a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

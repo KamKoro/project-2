@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit <%= movie.title %></title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/default/bulmaswatch.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="title">Edit Movie: <%= movie.title %></h1>
+        <%- include('../partials/_navbar') %>
+
+    <!-- Edit Form -->
+<form action="/users/<%= user._id %>/movies/<%= movie._id %>?_method=PUT" method="POST" class="box">
+
+    <!-- Title -->
+    <div class="field">
+        <label class="label" for="title">Title</label>
+        <input class="input" type="text" id="title" name="title" value="<%= movie.title %>" required>
+    </div>
+
+    <!-- Director (dropdown) -->
+    <div class="field">
+        <label class="label" for="director">Director</label>
+        <div class="control">
+            <input
+                    class="input"
+                    type="text"
+                    id="director"
+                    name="director"
+                    value="<%= movie.director || '' %>"
+                    placeholder="Type director's name"
+                    required
+                    autocomplete="off"
+                />
+        </div>
+    </div>
+
+    <!-- Release Year -->
+    <div class="field">
+        <label class="label" for="releaseYear">Release Year</label>
+        <input class="input" type="number" id="releaseYear" name="releaseYear" value="<%= movie.releaseYear || 1888 %>" required min="1888">
+    </div>
+
+    <!-- Genre (dropdown) -->
+    <div class="field">
+        <label class="label" for="genre">Genre</label>
+        <div class="select is-fullwidth">
+            <select id="genre" name="genre" required>
+                <option value="" disabled <%= !movie.genre ? 'selected' : '' %>>Select genre</option>
+                <% genres.forEach(g => { %>
+                    <option value="<%= g._id %>" <%= movie.genre && movie.genre.equals(g._id) ? 'selected' : '' %>><%= g.name %></option>
+                <% }) %>
+            </select>
+        </div>
+    </div>
+
+    <!-- Rating system -->
+    <div class="field">
+        <label class="label">My Score</label>
+        <p id="rating-label" class="rating-label">Click a score below</p>
+
+        <div class="rating-display mb-2">
+            <div id="rating-badge" class="rating-badge">0</div>
+        </div>
+
+        <div class="rating-steps">
+            <% for (let i = 1; i <= 10; i++) { %>
+                <div
+                    class="rating-step"
+                    data-score="<%= i %>"
+                    title="<%= i %>">
+                </div>
+            <% } %>
+        </div>
+
+        <input type="hidden" name="rating" id="rating-value" value="<%= movie.rating || 0 %>" />
+    </div>
+
+    <!-- Review -->
+    <div class="field">
+        <label class="label" for="review">Review</label>
+        <textarea class="textarea" id="review" name="review" rows="4"><%= movie.review %></textarea>
+    </div>
+
+    <!-- Submit Button: Centered -->
+    <div class="button-container">
+        <button class="button is-link" type="submit">Update Movie</button>
+    </div>
+</form>
+
+
+        <!-- Delete Form -->
+        <form action="/users/<%= user._id %>/movies/<%= movie._id %>?_method=DELETE" method="POST">
+            <button class="button is-danger mt-3" type="submit">Delete Movie</button>
+        </form>
+
+        <!-- Back Link -->
+        <p class="mt-4">
+            <a class="button is-light" href="/users/<%= user._id %>/movies">Back to My Movies</a>
+        </p>
+    </div>
+
+    <!-- Rating Script -->
+    <script>
+        const steps = document.querySelectorAll('.rating-step');
+        const badge = document.getElementById('rating-badge');
+        const label = document.getElementById('rating-label');
+        const input = document.getElementById('rating-value');
+
+        const labels = {
+            1: 'Awful', 2: 'Bad', 3: 'Poor', 4: 'Watchable', 5: 'Okay',
+            6: 'Good', 7: 'Very Good', 8: 'Great', 9: 'Excellent', 10: 'Masterpiece'
+        };
+
+        function getBadgeColor(score) {
+            if (score >= 8) return '#22c55e';
+            if (score >= 5) return '#facc15';
+            if (score > 0) return '#f87171';
+            return '#e0e0e0';
+        }
+
+        function getStepColorClass(score) {
+            if (score >= 8) return 'high';
+            if (score >= 5) return 'mid';
+            if (score > 0) return 'low';
+            return '';
+        }
+
+        function updateRating(score) {
+            input.value = score;
+            badge.textContent = score;
+            label.textContent = labels[score] || `Rating: ${score}`;
+            badge.style.backgroundColor = getBadgeColor(score);
+
+            steps.forEach(step => {
+                const stepScore = parseInt(step.dataset.score);
+                const isActive = stepScore <= score;
+                step.classList.toggle('active', isActive);
+                step.classList.remove('low', 'mid', 'high');
+                if (isActive) step.classList.add(getStepColorClass(score));
+            });
+        }
+
+        steps.forEach(step => {
+            step.addEventListener('click', () => updateRating(parseInt(step.dataset.score)));
+            step.addEventListener('mouseenter', () => {
+                const hoverScore = parseInt(step.dataset.score);
+                badge.textContent = hoverScore;
+                label.textContent = labels[hoverScore] || `Rating: ${hoverScore}`;
+                badge.style.backgroundColor = getBadgeColor(hoverScore);
+
+                steps.forEach(s => {
+                    const sScore = parseInt(s.dataset.score);
+                    const active = sScore <= hoverScore;
+                    s.classList.toggle('active', active);
+                    s.classList.remove('low', 'mid', 'high');
+                    if (active) s.classList.add(getStepColorClass(hoverScore));
+                });
+            });
+            step.addEventListener('mouseleave', () => {
+                const currentScore = parseInt(input.value) || 0;
+                updateRating(currentScore);
+            });
+        });
+
+        // Initialize with current rating
+        updateRating(parseInt(input.value) || 0);
+    </script>
+</body>
+</html>

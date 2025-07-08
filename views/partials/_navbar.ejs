@@ -1,0 +1,28 @@
+<!-- views/partuals/_navbar.ejs-->
+
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-menu is-active">
+      <div class="navbar-start">
+        <a href="/" class="navbar-item">Home</a>
+        <% if (user) { %>
+          <a href="/movies/new" class="navbar-item">Add Movie</a>
+            <a href="/users/<%= user._id %>/movies" class="navbar-item">My Movies</a>
+        <% } %>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <% if (user) { %>
+            <a href="/auth/sign-out" class="button is-light">Sign Out</a>
+          <% } else { %>
+            <div class="buttons">
+              <a href="/auth/sign-in" class="button is-primary">Sign In</a>
+              <a href="/auth/sign-up" class="button is-light">Sign Up</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -11,8 +11,6 @@ Movie Ratings: Rate movies on a scale from 1 to 10, with labels for each rating.
 
 Review System: Leave reviews for movies, with the ability to edit or delete them.
 
-Responsive Design: The app is fully responsive and works on both desktop and mobile devices.
-
 Movie Poster: Movies will display posters based on the title, with a fallback placeholder if the poster is unavailable.
 
 Technologies Used

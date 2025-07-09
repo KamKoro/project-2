@@ -21,10 +21,10 @@ const passUserToView = require('./middleware/passUserToView');
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 
-// ✅ Static files
+// Static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ Optional: Force lowercase URLs and decode them (if necessary)
+// Optional: Force lowercase URLs and decode them (if necessary)
 // This helps catch any URL issues caused by mixed casing or encoding
 app.use((req, res, next) => {
   try {

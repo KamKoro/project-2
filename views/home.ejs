@@ -16,7 +16,7 @@
 
       <% if (user) { %>
         <h2 class="has-text-centered mb-5">
-          Welcome, <%= user.username %>, you have <%= movieCount %> movie<%= movieCount === 1 ? '' : 's' %> in your collection 🎬  
+          Welcome, <%= user.username %>
         </h2>
 
         <!-- Collection Stats -->
@@ -35,7 +35,7 @@
             const mostWatchedGenre = Object.entries(genreFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
         %>
           <section class="movie-stats box mb-6">
-            <h3 class="title is-4">📊 Collection Stats</h3>
+            <h3 class="title is-4"> Stats</h3>
             <ul>
               <li><strong>Total Movies:</strong> <%= movieCount %></li>
               <li><strong>Average Rating:</strong> <%= avgRating %></li>
@@ -46,7 +46,7 @@
         <!-- Recently Added -->
         <% if (movies.length > 0) { %>
           <section class="recent-movies box mb-6">
-            <h3 class="title is-4">🆕 Recently Added</h3>
+            <h3 class="title is-4">Recently Added</h3>
             <ul>
               <% movies.slice(-3).reverse().forEach(m => { %>
                 <li>
@@ -62,7 +62,7 @@
             const topRatedMovies = movies.sort((a, b) => b.rating - a.rating).slice(0, 3);
         %>
           <section class="top-rated-movies box mb-6">
-            <h3 class="title is-4">🌟 Top Rated Movies</h3>
+            <h3 class="title is-4">Top Rated Movies</h3>
             <ul>
               <% topRatedMovies.forEach(m => { %>
                 <li>
@@ -70,6 +70,19 @@
                 </li>
               <% }) %>
             </ul>
+          </section>
+        <% } %>
+
+        <!-- New Users -->
+        <% if (movieCount === 0) { %>
+          <section class="add-movie-prompt box mb-6">
+            <h3 class="title is-4 has-text-centered">🎬 Add Your First Movie!</h3>
+            <p class="has-text-centered">
+              It looks like you haven't added any movies yet. Start by adding your first movie to get started on building your collection!
+            </p>
+            <div class="has-text-centered">
+              <a href="/movies/new" class="button is-primary is-large">Add a Movie</a>
+            </div>
           </section>
         <% } %>
 

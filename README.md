@@ -25,3 +25,5 @@ Authentication: Session-based authentication with cookies
 Rating System: Custom 1-10 rating system for movies
 
 Version Control: Git and GitHub
+
+<img width="2240" height="1139" alt="Image" src="https://github.com/user-attachments/assets/d3e2c24d-1382-4a9c-9c75-ad43aba7c260" />

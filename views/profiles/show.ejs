@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= profileUser.username %> — Profile</title>
+  <%- include('../partials/_headAssets') %>
+</head>
+<body>
+  <%- include('../partials/_navbar') %>
+
+  <main id="main-content" class="container mt-6">
+    <section class="box mb-5">
+      <h1 class="title is-2"><%= profileUser.username %></h1>
+      <p class="has-text-grey">
+        <%= reviewCount %> films · ★ <%= avgRating %> avg ·
+        <%= followerCount %> follower<%= followerCount === 1 ? '' : 's' %> ·
+        <%= followingCount %> following
+      </p>
+
+      <% if (!isOwnProfile) { %>
+        <div class="buttons mt-3">
+          <% if (isFollowing) { %>
+            <form action="/profiles/<%= profileUser.username %>/unfollow" method="POST">
+              <button class="button is-light" type="submit">Unfollow</button>
+            </form>
+          <% } else { %>
+            <form action="/profiles/<%= profileUser.username %>/follow" method="POST">
+              <button class="button is-primary" type="submit">Follow</button>
+            </form>
+          <% } %>
+        </div>
+      <% } else { %>
+        <a href="/diary" class="button is-light mt-3">View your diary</a>
+      <% } %>
+    </section>
+
+    <% if (lists.length) { %>
+      <section class="box mb-5" aria-labelledby="lists-heading">
+        <h2 id="lists-heading" class="title is-4">Lists</h2>
+        <ul>
+          <% lists.forEach(list => { %>
+            <li><a href="/lists/<%= list._id %>"><%= list.name %></a> (<%= list.films.length %> films)</li>
+          <% }) %>
+        </ul>
+      </section>
+    <% } %>
+
+    <section aria-labelledby="diary-heading">
+      <h2 id="diary-heading" class="title is-4 mb-4">Recent activity</h2>
+      <% if (!reviews.length) { %>
+        <p class="has-text-grey">No films logged yet.</p>
+      <% } else { %>
+        <div class="review-list">
+          <% reviews.slice(0, 10).forEach(review => { %>
+            <article class="review-card box">
+              <a href="/films/<%= review.film._id %>" class="review-card-poster-link">
+                <%- include('../partials/_moviePoster', { film: review.film, className: 'review-card-poster', alt: review.film.title }) %>
+              </a>
+              <div class="review-card-body">
+                <h3 class="title is-5"><a href="/films/<%= review.film._id %>"><%= review.film.title %></a></h3>
+                <p class="has-text-grey">★ <%= review.rating %>/10 · <%= new Date(review.watchedAt).toLocaleDateString() %></p>
+                <% if (review.text) { %><p><%= review.text %></p><% } %>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

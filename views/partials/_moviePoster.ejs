@@ -1,0 +1,18 @@
+<%
+  const filmTitle = typeof title !== 'undefined'
+    ? title
+    : (film && film.title) || (movie && movie.title) || 'Film';
+  const tmdbPoster = film?.posterPath || null;
+  const posterSrc = tmdbPoster
+    ? 'https://image.tmdb.org/t/p/w500' + tmdbPoster
+    : '/images/posters/' + filmTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '') + '.png';
+  const posterFallback = '/posters/generate?title=' + encodeURIComponent(filmTitle);
+  const posterClass = typeof className !== 'undefined' ? className : 'movie-poster';
+  const posterAlt = typeof alt !== 'undefined' ? alt : `Poster for ${filmTitle}`;
+%>
+<img
+  src="<%= posterSrc %>"
+  alt="<%= posterAlt %>"
+  class="<%= posterClass %>"
+  onerror="this.onerror=null;this.src='<%= posterFallback %>';"
+/>

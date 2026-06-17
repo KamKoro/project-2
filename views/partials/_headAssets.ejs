@@ -1,0 +1,10 @@
+<script>
+  (function () {
+    var theme = localStorage.getItem('scene-it-theme');
+    if (theme !== 'light' && theme !== 'dark') theme = 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/default/bulmaswatch.min.css" />
+<link rel="stylesheet" href="/stylesheets/styles.css" />
+<script src="/javascripts/rating-control.js" defer></script>

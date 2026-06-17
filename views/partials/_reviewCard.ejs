@@ -1,0 +1,61 @@
+<article class="review-card" aria-labelledby="review-<%= review._id %>-title">
+  <a
+    href="/films/<%= review.film._id %>"
+    class="review-card-poster-link"
+    aria-label="View <%= review.film.title %> details"
+  >
+    <%- include('./_moviePoster', {
+      film: review.film,
+      title: review.film.title,
+      className: 'review-card-poster',
+      alt: `Poster for ${review.film.title}`
+    }) %>
+  </a>
+
+  <div class="review-card-body">
+    <div class="review-card-header">
+      <div>
+        <% if (typeof showMovieTitle === 'undefined' || showMovieTitle) { %>
+          <a
+            href="/films/<%= review.film._id %>"
+            id="review-<%= review._id %>-title"
+            class="review-card-movie-title"
+          >
+            <%= review.film.title %>
+          </a>
+        <% } else { %>
+          <strong id="review-<%= review._id %>-title" class="review-card-reviewer"><%= review.user.username %></strong>
+        <% } %>
+        <p class="review-card-meta has-text-grey is-size-7">
+          <% if (typeof showMovieTitle === 'undefined' || showMovieTitle) { %>
+            Reviewed by <strong><%= review.user.username %></strong>
+            <% if (review.watchedAt) { %>
+              · Watched <%= new Date(review.watchedAt).toLocaleDateString() %>
+            <% } %>
+          <% } else { %>
+            <% if (review.watchedAt) { %>
+              Watched <%= new Date(review.watchedAt).toLocaleDateString() %>
+            <% } else { %>
+              Community review
+            <% } %>
+          <% } %>
+        </p>
+      </div>
+      <span class="rating-badge <%= badgeColorClass(review.rating) %> is-small"><%= review.rating %></span>
+    </div>
+
+    <p class="review-card-label"><%= ratingLabels[review.rating] || 'Rated' %></p>
+    <p class="review-card-text">
+      <%= review.text && review.text.trim() ? review.text : 'No written review.' %>
+    </p>
+    <p class="review-card-date has-text-grey is-size-7">
+      Posted <%= new Date(review.createdAt).toLocaleDateString() %>
+      <% if (review.likes && review.likes.length) { %>
+        · <%= review.likes.length %> like<%= review.likes.length === 1 ? '' : 's' %>
+      <% } %>
+      <% if (typeof commentCount !== 'undefined' && commentCount > 0) { %>
+        · <%= commentCount %> comment<%= commentCount === 1 ? '' : 's' %>
+      <% } %>
+    </p>
+  </div>
+</article>

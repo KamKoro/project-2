@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= film.title %></title>
+  <%- include('../partials/_headAssets') %>
+</head>
+<body>
+  <%- include('../partials/_navbar') %>
+
+  <main id="main-content" class="container mt-5">
+    <% if (backdropUrl) { %>
+      <div class="film-backdrop" style="background-image: url('<%= backdropUrl %>')" role="img" aria-label="Backdrop for <%= film.title %>"></div>
+    <% } %>
+
+    <div class="movie-detail-wrapper">
+      <%- include('../partials/_moviePoster', {
+        film,
+        className: 'movie-poster',
+        alt: 'Poster for ' + film.title
+      }) %>
+
+      <div class="movie-info">
+        <h1><%= film.title %></h1>
+        <p><strong>Director:</strong> <%= film.director || 'Unknown' %></p>
+        <p><strong>Year:</strong> <%= film.releaseYear || 'N/A' %></p>
+        <p><strong>Genre:</strong> <%= film.genre || 'N/A' %></p>
+        <% if (film.runtime) { %><p><strong>Runtime:</strong> <%= film.runtime %> min</p><% } %>
+
+        <div class="film-scores mt-3">
+          <p><strong>Community score:</strong>
+            <% if (stats.count) { %>
+              ★ <%= stats.average %> / 10 (<%= stats.count %> review<%= stats.count === 1 ? '' : 's' %>)
+            <% } else { %>
+              No ratings yet
+            <% } %>
+          </p>
+          <% if (currentUserReview) { %>
+            <p><strong>Your score:</strong> ★ <%= currentUserReview.rating %> / 10</p>
+          <% } %>
+        </div>
+
+        <% if (film.overview) { %>
+          <p class="film-overview mt-4"><%= film.overview %></p>
+        <% } %>
+
+        <% if (film.cast && film.cast.length) { %>
+          <div class="mt-4">
+            <strong>Cast:</strong>
+            <ul>
+              <% film.cast.forEach(actor => { %>
+                <li><%= actor.name %><% if (actor.character) { %> as <%= actor.character %><% } %></li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+
+        <div class="buttons mt-4">
+          <form action="/films/<%= film._id %>/watchlist" method="POST">
+            <input type="hidden" name="redirect" value="/films/<%= film._id %>" />
+            <button type="submit" class="button is-light">
+              <%= onWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist' %>
+            </button>
+          </form>
+          <% if (userLists && userLists.length) { %>
+            <% userLists.forEach(list => { %>
+              <form action="/lists/<%= list._id %>/films/<%= film._id %>" method="POST">
+                <input type="hidden" name="redirect" value="/films/<%= film._id %>" />
+                <button type="submit" class="button is-light is-small">+ <%= list.name %></button>
+              </form>
+            <% }) %>
+          <% } %>
+          <a href="/lists/new" class="button is-light is-small">New List</a>
+        </div>
+      </div>
+    </div>
+
+    <section class="box mt-5">
+      <h2 class="title is-4"><%= currentUserReview ? 'Edit Your Review' : 'Log This Film' %></h2>
+      <form action="<%= currentUserReview ? `/films/${film._id}/reviews/${currentUserReview._id}?_method=PUT` : `/films/${film._id}/reviews` %>" method="POST">
+        <div class="field">
+          <label class="label" for="watchedAt">Date watched</label>
+          <input class="input" type="date" id="watchedAt" name="watchedAt"
+            value="<%= currentUserReview && currentUserReview.watchedAt ? new Date(currentUserReview.watchedAt).toISOString().slice(0,10) : new Date().toISOString().slice(0,10) %>" />
+        </div>
+
+        <%- include('../partials/_ratingControl', {
+          selectedRating: currentUserReview ? currentUserReview.rating : 0,
+          labelId: 'review-rating-label',
+          badgeId: 'review-rating-badge',
+          inputId: 'review-rating-value',
+          heading: 'Your Score'
+        }) %>
+
+        <div class="field">
+          <label class="label" for="review-text">Review</label>
+          <textarea class="textarea" id="review-text" name="text" rows="4" placeholder="Share your thoughts..."><%= currentUserReview ? currentUserReview.text : '' %></textarea>
+        </div>
+
+        <div class="buttons">
+          <button class="button is-primary" type="submit"><%= currentUserReview ? 'Update Review' : 'Post Review' %></button>
+          <% if (currentUserReview) { %>
+            <button type="submit" class="button is-danger is-light"
+              formaction="/films/<%= film._id %>/reviews/<%= currentUserReview._id %>?_method=DELETE"
+              onclick="return confirm('Delete your review?');">Delete Review</button>
+          <% } %>
+        </div>
+      </form>
+
+      <% if (currentUserReview) { %>
+        <form action="/lists" method="GET" class="mt-3">
+          <p class="has-text-grey is-size-7">Tip: create a list from the Lists page, then add this film from the list view.</p>
+        </form>
+      <% } %>
+    </section>
+
+    <% if (currentUserReview) { %>
+      <section class="box mt-5">
+        <h2 class="title is-4">Log a Rewatch</h2>
+        <p class="has-text-grey mb-4">Record another viewing with a new date and optional updated rating.</p>
+        <form action="/films/<%= film._id %>/rewatch" method="POST">
+          <div class="field">
+            <label class="label" for="rewatch-date">Date watched</label>
+            <input class="input" type="date" id="rewatch-date" name="watchedAt"
+              value="<%= new Date().toISOString().slice(0,10) %>" />
+          </div>
+          <%- include('../partials/_ratingControl', {
+            selectedRating: currentUserReview.rating,
+            labelId: 'rewatch-rating-label',
+            badgeId: 'rewatch-rating-badge',
+            inputId: 'rewatch-rating-value',
+            heading: 'Rating for this viewing'
+          }) %>
+          <button class="button is-light" type="submit">Log Rewatch</button>
+        </form>
+        <% if (currentUserReview.watchHistory && currentUserReview.watchHistory.length) { %>
+          <div class="mt-4">
+            <strong>Previous watches:</strong>
+            <ul>
+              <% currentUserReview.watchHistory.slice().reverse().forEach(entry => { %>
+                <li><%= new Date(entry.watchedAt).toLocaleDateString() %> · ★ <%= entry.rating %>/10</li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+      </section>
+    <% } %>
+
+    <section class="community-reviews box mt-6" aria-labelledby="reviews-heading">
+      <h2 id="reviews-heading" class="title is-4">Community Reviews</h2>
+      <% if (!otherReviews.length) { %>
+        <p class="has-text-grey">No other reviews yet. Be the first!</p>
+      <% } else { %>
+        <div class="review-list">
+          <% otherReviews.forEach(review => { %>
+            <article class="review-card">
+              <div class="review-card-body" style="width:100%">
+                <div class="review-card-header">
+                  <div>
+                    <a href="/profiles/<%= review.user.username %>" class="review-card-reviewer"><%= review.user.username %></a>
+                    <p class="review-card-meta has-text-grey is-size-7">
+                      <% if (review.watchedAt) { %>Watched <%= new Date(review.watchedAt).toLocaleDateString() %> · <% } %>
+                      Posted <%= new Date(review.createdAt).toLocaleDateString() %>
+                    </p>
+                  </div>
+                  <span class="rating-badge <%= badgeColorClass(review.rating) %> is-small"><%= review.rating %></span>
+                </div>
+                <p class="review-card-text"><%= review.text || 'No written review.' %></p>
+                <div class="buttons are-small mt-2">
+                  <form action="/reviews/<%= review._id %>/like" method="POST">
+                    <input type="hidden" name="redirect" value="/films/<%= film._id %>" />
+                    <button type="submit" class="button is-light">
+                      <%= (review.likes || []).some(id => id.toString() === user._id.toString()) ? 'Unlike' : 'Like' %>
+                      (<%= review.likes ? review.likes.length : 0 %>)
+                    </button>
+                  </form>
+                </div>
+                <% const comments = commentsByReview[review._id.toString()] || []; %>
+                <% if (comments.length) { %>
+                  <div class="review-comments mt-3">
+                    <% comments.forEach(comment => { %>
+                      <p class="is-size-7"><strong><%= comment.user.username %>:</strong> <%= comment.text %></p>
+                    <% }) %>
+                  </div>
+                <% } %>
+                <form action="/reviews/<%= review._id %>/comments" method="POST" class="mt-2">
+                  <input type="hidden" name="redirect" value="/films/<%= film._id %>" />
+                  <div class="field has-addons">
+                    <div class="control is-expanded">
+                      <input class="input is-small" type="text" name="text" placeholder="Add a comment" aria-label="Comment on review by <%= review.user.username %>" />
+                    </div>
+                    <div class="control">
+                      <button class="button is-small is-primary" type="submit">Reply</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <a class="button is-light is-small mt-3" href="/films">← Back to Discover</a>
+  </main>
+</body>
+</html>

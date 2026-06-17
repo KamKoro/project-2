@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Diary</title>
+  <%- include('../partials/_headAssets') %>
+</head>
+<body>
+  <%- include('../partials/_navbar') %>
+
+  <main id="main-content" class="container mt-6">
+    <h1 class="title is-2 has-text-centered mb-5">My Diary</h1>
+
+    <section class="movie-stats box mb-6">
+      <h2 class="title is-4">Stats</h2>
+      <ul>
+        <li><strong>Films watched:</strong> <%= stats.reviewCount %></li>
+        <li><strong>This year:</strong> <%= stats.filmsThisYear %></li>
+        <li><strong>Average rating:</strong> ★ <%= stats.avgRating %></li>
+        <% if (stats.favoriteGenre) { %>
+          <li><strong>Favorite genre:</strong> <%= stats.favoriteGenre %></li>
+        <% } %>
+      </ul>
+    </section>
+
+    <% if (!reviews.length) { %>
+      <div class="box has-text-centered">
+        <p>Your diary is empty. <a href="/films/log">Log your first film</a>.</p>
+      </div>
+    <% } else { %>
+      <div class="diary-timeline">
+        <% reviews.forEach(review => { %>
+          <article class="review-card box mb-4">
+            <a href="/films/<%= review.film._id %>" class="review-card-poster-link">
+              <%- include('../partials/_moviePoster', { film: review.film, className: 'review-card-poster', alt: review.film.title }) %>
+            </a>
+            <div class="review-card-body">
+              <h2 class="title is-5"><a href="/films/<%= review.film._id %>"><%= review.film.title %></a></h2>
+              <p class="has-text-grey">
+                Watched <%= new Date(review.watchedAt).toLocaleDateString() %> · ★ <%= review.rating %>/10
+                <% if (review.watchHistory && review.watchHistory.length) { %>
+                  · <%= review.watchHistory.length + 1 %> watch<%= review.watchHistory.length === 0 ? '' : 'es' %>
+                <% } %>
+              </p>
+              <% if (review.text) { %><p><%= review.text %></p><% } %>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

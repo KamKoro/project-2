@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watchlist</title>
+  <%- include('../partials/_headAssets') %>
+</head>
+<body>
+  <%- include('../partials/_navbar') %>
+
+  <main id="main-content" class="container mt-6">
+    <h1 class="title is-2 has-text-centered mb-5">Watchlist</h1>
+
+    <% if (!entries.length) { %>
+      <div class="box has-text-centered">
+        <p>Nothing on your watchlist yet. Browse <a href="/films">films</a> to add some.</p>
+      </div>
+    <% } else { %>
+      <div class="movie-grid">
+        <% entries.forEach(entry => { %>
+          <div class="movie-card">
+            <a href="/films/<%= entry.film._id %>">
+              <%- include('../partials/_moviePoster', { film: entry.film, className: 'movie-card-poster', alt: entry.film.title }) %>
+            </a>
+            <div class="movie-card-info">
+              <p class="title is-5"><a href="/films/<%= entry.film._id %>"><%= entry.film.title %></a></p>
+              <p class="has-text-grey"><%= entry.film.releaseYear || 'N/A' %></p>
+              <form action="/films/<%= entry.film._id %>/watchlist" method="POST">
+                <input type="hidden" name="redirect" value="/watchlist" />
+                <button class="button is-small is-light" type="submit">Remove</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

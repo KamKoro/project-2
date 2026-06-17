@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Movie App</title>
 
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="/stylesheets/styles.css" />
-  <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/default/bulmaswatch.min.css" />
+  <%- include('../partials/_headAssets') %>
 </head>
 <body>
   <!-- Navbar -->
@@ -23,23 +21,16 @@
   </header>
 
   <!-- Movie Grid -->
-  <main class="container">
+  <main id="main-content" class="container">
     <div class="movie-grid">
-      <% movies.forEach(movie => {
-          const posterFilename = movie.title
-            .toLowerCase()
-            .replace(/\s+/g, '-')
-            .replace(/[^\w\-]/g, '') + '.png';
-      %>
+        <% movies.forEach(movie => { %>
         <div class="movie-card">
           <div class="movie-card-content">
-            <!-- Poster Image -->
-            <img
-              src="/images/posters/<%= posterFilename %>"
-              alt="<%= movie.title %> poster"
-              class="movie-card-poster"
-              onerror="this.onerror=null;this.src='/images/posters/placeholder.png';"
-            />
+            <%- include('../partials/_moviePoster', {
+              title: movie.title,
+              className: 'movie-card-poster',
+              alt: `${movie.title} poster`
+            }) %>
 
             <!-- Movie Info -->
             <div class="movie-card-info">

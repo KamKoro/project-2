@@ -3,105 +3,113 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Movie Collection</title>
-    <link rel="stylesheet" href="/stylesheets/styles.css" />
-    <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/default/bulmaswatch.min.css" />
+    <title>Scene It</title>
+    <%- include('partials/_headAssets') %>
   </head>
   <body>
-    <!-- Navbar -->
     <%- include('partials/_navbar') %>
 
-    <!-- Main Content -->
-    <main class="container mt-6">
-
+    <main id="main-content" class="container mt-6">
       <% if (user) { %>
-        <h2 class="has-text-centered mb-5">
-          Welcome, <%= user.username %>
-        </h2>
+        <h1 class="has-text-centered mb-5">Welcome, <%= user.username %></h1>
 
-        <!-- Collection Stats -->
-        <% if (movies.length > 0) { 
-            const avgRating = (movies.reduce((sum, m) => sum + (m.rating || 0), 0) / movieCount).toFixed(1);
-            const genreCount = [...new Set(movies.map(m => m.genre?.name).filter(Boolean))].length;
+        <section class="movie-stats box mb-6" aria-labelledby="stats-heading">
+          <h2 id="stats-heading" class="title is-4">Your Stats</h2>
+          <ul>
+            <li><strong>Films watched:</strong> <%= stats.reviewCount %></li>
+            <li><strong>This year:</strong> <%= stats.filmsThisYear %></li>
+            <li><strong>Average rating:</strong> ★ <%= stats.avgRating %></li>
+            <% if (stats.favoriteGenre) { %>
+              <li><strong>Favorite genre:</strong> <%= stats.favoriteGenre %></li>
+            <% } %>
+            <li><strong>Watchlist:</strong> <%= watchlistCount %> film<%= watchlistCount === 1 ? '' : 's' %></li>
+          </ul>
+          <div class="buttons mt-3">
+            <a href="/films/log" class="button is-primary is-small">Log a Film</a>
+            <a href="/diary" class="button is-light is-small">View Diary</a>
+          </div>
+        </section>
 
-            const genreFreq = {};
-            movies.forEach(m => {
-              const genreName = m.genre?.name;
-              if (genreName) {
-                genreFreq[genreName] = (genreFreq[genreName] || 0) + 1;
-              }
-            });
-
-            const mostWatchedGenre = Object.entries(genreFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
-        %>
-          <section class="movie-stats box mb-6">
-            <h3 class="title is-4"> Stats</h3>
-            <ul>
-              <li><strong>Total Movies:</strong> <%= movieCount %></li>
-              <li><strong>Average Rating:</strong> <%= avgRating %></li>
-            </ul>
+        <% if (feed && feed.length) { %>
+          <section class="box mb-6" aria-labelledby="feed-heading">
+            <h2 id="feed-heading" class="title is-4">Following Feed</h2>
+            <div class="review-list">
+              <% feed.slice(0, 3).forEach(review => { %>
+                <%- include('partials/_reviewCard', { review, badgeColorClass, ratingLabels }) %>
+              <% }) %>
+            </div>
+            <a href="/feed" class="button is-light is-small mt-3">View full feed</a>
           </section>
         <% } %>
 
-        <!-- Recently Added -->
-        <% if (movies.length > 0) { %>
-          <section class="recent-movies box mb-6">
-            <h3 class="title is-4">Recently Added</h3>
+        <% if (reviews && reviews.length) { %>
+          <section class="recent-movies box mb-6" aria-labelledby="recent-heading">
+            <h2 id="recent-heading" class="title is-4">Recently Watched</h2>
             <ul>
-              <% movies.slice(-3).reverse().forEach(m => { %>
+              <% reviews.slice(0, 5).forEach(r => { %>
                 <li>
-                  <a href="/movies/<%= m._id %>"><%= m.title %></a> (<%= m.releaseYear || m.year || 'N/A' %>)
+                  <a href="/films/<%= r.film._id %>"><%= r.film.title %></a>
+                  — ★ <%= r.rating %>/10
                 </li>
               <% }) %>
             </ul>
           </section>
         <% } %>
 
-        <!-- Top Rated Movies -->
-        <% if (movies.length > 0) { 
-            const topRatedMovies = movies.sort((a, b) => b.rating - a.rating).slice(0, 3);
-        %>
-          <section class="top-rated-movies box mb-6">
-            <h3 class="title is-4">Top Rated Movies</h3>
-            <ul>
-              <% topRatedMovies.forEach(m => { %>
-                <li>
-                  <a href="/movies/<%= m._id %>"><%= m.title %></a> - Rating: <%= m.rating %>
-                </li>
-              <% }) %>
-            </ul>
-          </section>
-        <% } %>
-
-        <!-- New Users -->
         <% if (movieCount === 0) { %>
-          <section class="add-movie-prompt box mb-6">
-            <h3 class="title is-4 has-text-centered">🎬 Add Your First Movie!</h3>
-            <p class="has-text-centered">
-              It looks like you haven't added any movies yet. Start by adding your first movie to get started on building your collection!
-            </p>
+          <section class="add-movie-prompt box mb-6" aria-labelledby="add-first-heading">
+            <h2 id="add-first-heading" class="title is-4 has-text-centered">Log Your First Film</h2>
+            <p class="has-text-centered">Search TMDB or log manually to start your diary.</p>
             <div class="has-text-centered">
-              <a href="/movies/new" class="button is-primary is-large">Add a Movie</a>
+              <a href="/films/log" class="button is-primary is-large">Log a Film</a>
             </div>
           </section>
         <% } %>
 
       <% } else { %>
-        <!-- Guest View -->
         <section class="hero is-light is-bold mb-6">
           <div class="hero-body">
             <div class="container has-text-centered">
-              <h1 class="title is-2 mb-4">🎥 Welcome to Scene It</h1>
-              <p class="subtitle is-5 mb-5">
-                Your personal library for tracking and reviewing films.
-              </p>
-              <a href="/auth/sign-in" class="button is-primary is-medium">
-                Sign in to get started
-              </a>
+              <h1 class="title is-2 mb-4">Welcome to Scene It</h1>
+              <p class="subtitle is-5 mb-5">Track, rate, and review films — like Letterboxd for your collection.</p>
+              <a href="/auth/sign-in" class="button is-primary is-medium">Sign in to get started</a>
             </div>
           </div>
         </section>
       <% } %>
+
+      <% if (trending && trending.length) { %>
+        <section class="box mb-6" aria-labelledby="trending-heading">
+          <h2 id="trending-heading" class="title is-4">Trending Films</h2>
+          <div class="movie-grid">
+            <% trending.forEach(({ film, average, count }) => { %>
+              <div class="movie-card">
+                <a href="/films/<%= film._id %>">
+                  <%- include('partials/_moviePoster', { film, className: 'movie-card-poster', alt: film.title }) %>
+                </a>
+                <p class="title is-6"><a href="/films/<%= film._id %>"><%= film.title %></a></p>
+                <p class="has-text-grey is-size-7">★ <%= average %> (<%= count %>)</p>
+              </div>
+            <% }) %>
+          </div>
+          <a href="/films" class="button is-light is-small mt-3">Discover more</a>
+        </section>
+      <% } %>
+
+      <section class="community-reviews box mb-6" aria-labelledby="latest-reviews-heading">
+        <h2 id="latest-reviews-heading" class="title is-4">Latest Reviews</h2>
+        <% const latestReviewItems = Array.isArray(latestReviews) ? latestReviews : []; %>
+        <% if (!latestReviewItems.length) { %>
+          <p class="has-text-grey">No community reviews yet.</p>
+          <% if (user) { %><a href="/films" class="button is-light is-small mt-3">Discover Films</a><% } %>
+        <% } else { %>
+          <div class="review-list">
+            <% latestReviewItems.forEach(review => { %>
+              <%- include('partials/_reviewCard', { review, badgeColorClass, ratingLabels }) %>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
     </main>
   </body>
 </html>

@@ -1,17 +1,52 @@
-<!-- views/partuals/_navbar.ejs-->
+<!-- views/partials/_navbar.ejs -->
+<%- include('_skipLink') %>
 
-<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+<nav class="navbar is-dark" aria-label="Main navigation">
   <div class="container">
+    <div class="navbar-brand">
+      <a href="/" class="navbar-item site-brand">Scene It</a>
+    </div>
     <div class="navbar-menu is-active">
       <div class="navbar-start">
         <a href="/" class="navbar-item">Home</a>
         <% if (user) { %>
-          <a href="/movies/new" class="navbar-item">Add Movie</a>
-            <a href="/users/<%= user._id %>/movies" class="navbar-item">My Movies</a>
+          <a href="/films" class="navbar-item">Discover</a>
+          <a href="/films/log" class="navbar-item">Log Film</a>
+          <a href="/diary" class="navbar-item">Diary</a>
+          <a href="/watchlist" class="navbar-item">Watchlist</a>
+          <a href="/feed" class="navbar-item">Feed</a>
+          <a href="/lists" class="navbar-item">Lists</a>
+          <a href="/notifications" class="navbar-item">
+            Notifications<% if (typeof unreadNotifications !== 'undefined' && unreadNotifications > 0) { %>
+              <span class="nav-badge" aria-label="<%= unreadNotifications %> unread"><%= unreadNotifications %></span>
+            <% } %>
+          </a>
+          <a href="/profiles/<%= user.username %>" class="navbar-item">Profile</a>
         <% } %>
       </div>
 
       <div class="navbar-end">
+        <div class="navbar-item">
+          <button
+            type="button"
+            id="theme-toggle"
+            class="theme-toggle"
+            aria-label="Switch to light mode"
+            aria-pressed="false"
+          >
+            <span class="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+              </svg>
+            </span>
+            <span class="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
         <div class="navbar-item">
           <% if (user) { %>
             <a href="/auth/sign-out" class="button is-light">Sign Out</a>
@@ -26,3 +61,4 @@
     </div>
   </div>
 </nav>
+<script src="/javascripts/theme-toggle.js"></script>

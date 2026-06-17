@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications</title>
+  <%- include('../partials/_headAssets') %>
+</head>
+<body>
+  <%- include('../partials/_navbar') %>
+
+  <main id="main-content" class="container mt-6">
+    <h1 class="title is-2 mb-5">Notifications</h1>
+
+    <% if (!notifications.length) { %>
+      <div class="box">
+        <p class="has-text-grey">No notifications yet. Follow users and engage with reviews to see activity here.</p>
+      </div>
+    <% } else { %>
+      <ul class="notification-list">
+        <% notifications.forEach(note => { %>
+          <li class="box mb-3">
+            <% if (note.type === 'follow') { %>
+              <p>
+                <a href="/profiles/<%= note.actor.username %>"><strong><%= note.actor.username %></strong></a>
+                started following you.
+              </p>
+            <% } else if (note.type === 'like') { %>
+              <p>
+                <a href="/profiles/<%= note.actor.username %>"><strong><%= note.actor.username %></strong></a>
+                liked your review
+                <% if (note.film) { %> of <a href="/films/<%= note.film._id %>"><%= note.film.title %></a><% } %>.
+              </p>
+            <% } else if (note.type === 'comment') { %>
+              <p>
+                <a href="/profiles/<%= note.actor.username %>"><strong><%= note.actor.username %></strong></a>
+                commented on your review
+                <% if (note.film) { %> of <a href="/films/<%= note.film._id %>"><%= note.film.title %></a><% } %>:
+                "<%= note.text %>"
+              </p>
+            <% } %>
+            <p class="has-text-grey is-size-7 mt-1"><%= new Date(note.createdAt).toLocaleString() %></p>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </main>
+</body>
+</html>

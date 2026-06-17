@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community Movies</title>
+  <%- include('../partials/_headAssets') %>
+</head>
+<body>
+  <%- include('../partials/_navbar') %>
+
+  <header class="mb-5">
+    <div class="container">
+      <h1 class="title is-1 has-text-centered">Community Movies</h1>
+      <p class="has-text-centered has-text-grey">
+        Browse movies added by other users and share your own reviews.
+      </p>
+    </div>
+  </header>
+
+  <main id="main-content" class="container">
+    <% if (movies.length === 0) { %>
+      <div class="box has-text-centered">
+        <p>No movies in the community yet. Be the first to add one!</p>
+        <a href="/movies/new" class="button is-primary mt-4">Add a Movie</a>
+      </div>
+    <% } else { %>
+      <div class="movie-grid">
+        <% movies.forEach(movie => {
+            const reviewCount = reviewCountMap[movie._id.toString()] || 0;
+            const isOwnMovie = movie.user._id.toString() === user._id.toString();
+        %>
+          <div class="movie-card">
+            <div class="movie-card-content">
+              <%- include('../partials/_moviePoster', {
+                title: movie.title,
+                className: 'movie-card-poster',
+                alt: `${movie.title} poster`
+              }) %>
+
+              <div class="movie-card-info">
+                <p class="title is-4 mb-1">
+                  <a href="/movies/<%= movie._id %>"><%= movie.title %></a>
+                </p>
+                <p class="subtitle is-6">Directed by: <%= movie.director || 'Unknown' %></p>
+                <p class="has-text-grey">
+                  Genre: <%= movie.genre?.name || 'N/A' %>
+                </p>
+                <p class="has-text-grey">Released: <%= movie.releaseYear %></p>
+                <p class="has-text-grey">
+                  Added by: <%= movie.user.username %><%= isOwnMovie ? ' (you)' : '' %>
+                </p>
+                <p class="has-text-grey">
+                  Community reviews: <%= reviewCount %>
+                </p>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <section class="community-reviews box mt-6">
+      <h2 class="title is-4 mb-4">Recent Community Reviews</h2>
+
+      <% if (!communityReviews || communityReviews.length === 0) { %>
+        <p class="has-text-grey">No community reviews yet. Pick a movie above and be the first to review it.</p>
+      <% } else { %>
+        <%
+          const ratingLabels = {
+            1: 'Awful', 2: 'Bad', 3: 'Poor', 4: 'Watchable', 5: 'Okay',
+            6: 'Good', 7: 'Very Good', 8: 'Great', 9: 'Excellent', 10: 'Masterpiece'
+          };
+          function badgeColorClass(rating) {
+            if (rating >= 8) return 'high';
+            if (rating >= 5) return 'mid';
+            if (rating > 0) return 'low';
+            return '';
+          }
+        %>
+        <div class="review-list">
+          <% communityReviews.forEach(review => { %>
+            <%- include('../partials/_reviewCard', {
+              review,
+              badgeColorClass,
+              ratingLabels
+            }) %>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

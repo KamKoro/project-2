@@ -4,34 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In</title>
-  <link rel="stylesheet" href="/stylesheets/styles.css" />
-  <link rel="stylesheet" href="https://unpkg.com/bulmaswatch/default/bulmaswatch.min.css" />
+  <%- include('../partials/_headAssets') %>
 </head>
 <body>
   <!-- Navbar -->
   <%- include('../partials/_navbar') %>
 
   <!-- Main Content -->
-  <main class="container mt-6">
+  <main id="main-content" class="container mt-6">
     <section class="box" style="max-width: 500px; margin: 0 auto;">
       <h1 class="title is-3 has-text-centered mb-5">Sign In to Your Account</h1>
 
       <form action="/auth/sign-in" method="POST">
-        <!-- Username -->
         <div class="field">
           <label class="label" for="username">Username</label>
           <div class="control">
-            <input class="input" type="text" name="username" id="username" placeholder="Enter your username" required />
+            <input class="input" type="text" name="username" id="username" placeholder="Enter your username" autocomplete="username" required />
           </div>
         </div>
 
-        <!-- Password -->
-        <div class="field">
-          <label class="label" for="password">Password</label>
-          <div class="control">
-            <input class="input" type="password" name="password" id="password" placeholder="Enter your password" required />
-          </div>
-        </div>
+        <%- include('../partials/_passwordField', {
+          id: 'password',
+          name: 'password',
+          label: 'Password',
+          placeholder: 'Enter your password',
+          autocomplete: 'current-password'
+        }) %>
 
         <!-- Submit Button -->
         <div class="field is-grouped is-justify-content-center mt-4">
@@ -47,5 +45,6 @@
       </p>
     </section>
   </main>
+  <script src="/javascripts/password-toggle.js"></script>
 </body>
 </html>

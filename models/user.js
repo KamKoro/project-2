@@ -1,25 +1,24 @@
-const mongoose = require("mongoose");
-
-// models/user.js
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
+    unique: true,
+    trim: true,
   },
   password: {
     type: String,
     required: true,
   },
-  movies: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Movie" // Reference to the Movie model
-    }
-  ]
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }],
+  movies: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Movie',
+  }],
 });
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
-// This model defines a User schema with username and password fields,
-// and an array of movies that references the Movie model.
+module.exports = mongoose.model('User', userSchema);

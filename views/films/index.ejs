@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discover Films</title>
+  <%- include('../partials/_headAssets') %>
+</head>
+<body>
+  <%- include('../partials/_navbar') %>
+
+  <header class="mb-5">
+    <div class="container">
+      <h1 class="title is-1 has-text-centered">Discover Films</h1>
+      <p class="has-text-centered has-text-grey">Search, filter, and explore the community catalog.</p>
+    </div>
+  </header>
+
+  <main id="main-content" class="container">
+    <section class="box mb-5">
+      <form method="GET" action="/films" class="film-search-form">
+        <div class="field is-grouped is-grouped-multiline">
+          <div class="control is-expanded">
+            <label class="label" for="search-q">Search</label>
+            <input class="input" id="search-q" type="search" name="q" value="<%= query.q %>" placeholder="Title, director, or actor" />
+          </div>
+          <div class="control">
+            <label class="label" for="search-genre">Genre</label>
+            <div class="select">
+              <select id="search-genre" name="genre">
+                <option value="">All genres</option>
+                <% genres.forEach(g => { %>
+                  <option value="<%= g %>" <%= query.genre === g ? 'selected' : '' %>><%= g %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="control">
+            <label class="label" for="search-sort">Sort by</label>
+            <div class="select">
+              <select id="search-sort" name="sort">
+                <option value="newest" <%= query.sort === 'newest' ? 'selected' : '' %>>Newest</option>
+                <option value="popular" <%= query.sort === 'popular' ? 'selected' : '' %>>Most reviewed</option>
+                <option value="rating" <%= query.sort === 'rating' ? 'selected' : '' %>>Highest rated</option>
+              </select>
+            </div>
+          </div>
+          <div class="control">
+            <label class="label">&nbsp;</label>
+            <button class="button is-primary" type="submit">Search</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <% if (trending.length) { %>
+      <section class="box mb-6" aria-labelledby="trending-heading">
+        <h2 id="trending-heading" class="title is-4">Trending</h2>
+        <div class="movie-grid">
+          <% trending.forEach(({ film, average, count }) => { %>
+            <div class="movie-card">
+              <a href="/films/<%= film._id %>">
+                <%- include('../partials/_moviePoster', { film, className: 'movie-card-poster', alt: film.title + ' poster' }) %>
+              </a>
+              <div class="movie-card-info">
+                <p class="title is-5"><a href="/films/<%= film._id %>"><%= film.title %></a></p>
+                <p class="has-text-grey"><%= film.releaseYear || 'N/A' %> · ★ <%= average %> (<%= count %>)</p>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="mb-6" aria-labelledby="catalog-heading">
+      <h2 id="catalog-heading" class="title is-4 mb-4">All Films</h2>
+      <% if (!films.length) { %>
+        <div class="box has-text-centered">
+          <p>No films found. <a href="/films/log">Log your first film</a>.</p>
+        </div>
+      <% } else { %>
+        <div class="movie-grid">
+          <% films.forEach(film => {
+              const stats = statsMap[film._id.toString()] || { count: 0, average: 0 };
+          %>
+            <div class="movie-card">
+              <a href="/films/<%= film._id %>">
+                <%- include('../partials/_moviePoster', { film, className: 'movie-card-poster', alt: film.title + ' poster' }) %>
+              </a>
+              <div class="movie-card-info">
+                <p class="title is-5"><a href="/films/<%= film._id %>"><%= film.title %></a></p>
+                <p class="subtitle is-6"><%= film.director || 'Unknown director' %></p>
+                <p class="has-text-grey"><%= film.genre || 'N/A' %> · <%= film.releaseYear || 'N/A' %></p>
+                <% if (stats.count) { %>
+                  <p class="has-text-grey">★ <%= stats.average %> · <%= stats.count %> review<%= stats.count === 1 ? '' : 's' %></p>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="community-reviews box" aria-labelledby="latest-reviews-heading">
+      <h2 id="latest-reviews-heading" class="title is-4">Latest Reviews</h2>
+      <% if (!communityReviews.length) { %>
+        <p class="has-text-grey">No reviews yet.</p>
+      <% } else { %>
+        <div class="review-list">
+          <% communityReviews.forEach(review => { %>
+            <%- include('../partials/_reviewCard', { review, badgeColorClass, ratingLabels }) %>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

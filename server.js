@@ -38,13 +38,21 @@ app.use((req, res, next) => {
   next();
 });
 
+const mongoUri = (process.env.MONGODB_URI || '').trim();
+
+const mongoOptions = {
+  family: 4,
+  serverSelectionTimeoutMS: 10000,
+};
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'i-like-turtles',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
+      mongoUrl: mongoUri,
+      mongoOptions,
       collectionName: 'sessions',
       ttl: 14 * 24 * 60 * 60,
       autoRemove: 'native',
@@ -59,9 +67,20 @@ app.use(
   })
 );
 
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect(mongoUri, mongoOptions).catch((err) => {
+  console.error('MongoDB connection error:', err.message);
+});
+
 mongoose.connection.on('connected', () => {
   console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB error:', err.message);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection:', err);
 });
 
 app.use(express.urlencoded({ extended: false }));

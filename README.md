@@ -43,7 +43,7 @@ Scene It is a full-stack movie review platform inspired by Letterboxd and IMDb. 
 
 ## Prerequisites
 
-- Node.js v18+
+- Node.js v22+
 - MongoDB (local or Atlas)
 - TMDB API key (free at [themoviedb.org](https://www.themoviedb.org/settings/api)) — optional but recommended
 

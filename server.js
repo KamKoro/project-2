@@ -27,6 +27,10 @@ const { getUnreadCount } = require('./utilities/notifications');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
@@ -50,6 +54,7 @@ app.use(
     secret: process.env.SESSION_SECRET || 'i-like-turtles',
     resave: false,
     saveUninitialized: false,
+    proxy: process.env.NODE_ENV === 'production',
     store: MongoStore.create({
       mongoUrl: mongoUri,
       mongoOptions,

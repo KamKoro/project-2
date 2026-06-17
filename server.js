@@ -9,7 +9,7 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 const session = require('express-session');
 const path = require('path');
-const MongoStore = require('connect-mongo');
+const { MongoStore } = require('connect-mongo');
 
 const filmsController = require('./controllers/filmsController');
 const usersController = require('./controllers/usersController');

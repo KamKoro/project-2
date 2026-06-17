@@ -732,6 +732,124 @@ button:not(.button):not(.password-toggle):hover {
   color: var(--film-cream);
 }
 
+/* ---- Guest landing page ---- */
+.landing-hero {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.landing-hero-inner {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  background: linear-gradient(
+    135deg,
+    rgba(26, 23, 32, 0.95) 0%,
+    rgba(10, 10, 11, 0.98) 100%
+  );
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 0 60px rgba(212, 175, 55, 0.08),
+    0 16px 48px var(--film-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-hero-inner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 100%;
+  background: radial-gradient(ellipse, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.landing-eyebrow {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--film-gold);
+  margin-bottom: 0.75rem;
+}
+
+.landing-title {
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 800;
+  color: var(--film-marquee);
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.landing-tagline {
+  font-size: 1.15rem;
+  color: var(--film-cream-muted);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.landing-features .landing-feature {
+  text-align: center;
+  padding: 1rem 0.5rem;
+}
+
+.landing-feature-icon {
+  display: block;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.landing-feature h3 {
+  color: var(--film-marquee) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.landing-feature p {
+  font-size: 0.95rem;
+  color: var(--film-cream-muted);
+  line-height: 1.5;
+}
+
+.landing-cta {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--film-border-subtle);
+}
+
+.landing-cta p {
+  color: var(--film-cream-muted);
+}
+
+[data-theme='light'] .landing-hero-inner {
+  background: linear-gradient(135deg, #f8f6f0 0%, #ebe6dc 100%);
+  border-color: rgba(180, 140, 40, 0.35);
+}
+
+[data-theme='light'] .landing-title {
+  color: #1a1718;
+}
+
+[data-theme='light'] .landing-tagline,
+[data-theme='light'] .landing-feature p,
+[data-theme='light'] .landing-cta p {
+  color: #4a4540;
+}
+
+[data-theme='light'] .landing-feature h3 {
+  color: #1a1718 !important;
+}
+
 /* ---- Hero / guest landing ---- */
 .hero,
 .hero.is-light {
@@ -896,6 +1014,10 @@ main .box .has-text-centered {
 .review-card-poster-link {
   flex-shrink: 0;
   display: block;
+}
+
+.review-card > .review-card-poster {
+  flex-shrink: 0;
 }
 
 .review-card-poster {

@@ -67,12 +67,50 @@
         <% } %>
 
       <% } else { %>
-        <section class="hero is-light is-bold mb-6">
-          <div class="hero-body">
-            <div class="container has-text-centered">
-              <h1 class="title is-2 mb-4">Welcome to Scene It</h1>
-              <p class="subtitle is-5 mb-5">Track, rate, and review films — like Letterboxd for your collection.</p>
-              <a href="/auth/sign-in" class="button is-primary is-medium">Sign in to get started</a>
+        <section class="landing-hero mb-6" aria-labelledby="landing-heading">
+          <div class="landing-hero-inner">
+            <p class="landing-eyebrow">Your personal film diary</p>
+            <h1 id="landing-heading" class="landing-title">Scene It</h1>
+            <p class="landing-tagline">
+              Log what you watch, rate every film, follow friends, and see what the community is talking about.
+            </p>
+            <div class="landing-actions">
+              <a href="/auth/sign-up" class="button is-primary is-medium">Create free account</a>
+              <a href="/auth/sign-in" class="button is-light is-medium">Sign in</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="landing-features box mb-6" aria-labelledby="features-heading">
+          <h2 id="features-heading" class="title is-4 has-text-centered mb-5">Everything you need to track films</h2>
+          <div class="columns is-multiline is-centered">
+            <div class="column is-half-tablet is-one-quarter-desktop">
+              <article class="landing-feature">
+                <span class="landing-feature-icon" aria-hidden="true">🎬</span>
+                <h3 class="title is-6">Log &amp; rate</h3>
+                <p>Search TMDB or add films manually. Rate 1–10 and write reviews with watch dates.</p>
+              </article>
+            </div>
+            <div class="column is-half-tablet is-one-quarter-desktop">
+              <article class="landing-feature">
+                <span class="landing-feature-icon" aria-hidden="true">🔍</span>
+                <h3 class="title is-6">Discover</h3>
+                <p>Browse the catalog, filter by genre, and see trending titles from the community.</p>
+              </article>
+            </div>
+            <div class="column is-half-tablet is-one-quarter-desktop">
+              <article class="landing-feature">
+                <span class="landing-feature-icon" aria-hidden="true">👥</span>
+                <h3 class="title is-6">Follow friends</h3>
+                <p>Build a feed of reviews from people you follow. Like and comment on their takes.</p>
+              </article>
+            </div>
+            <div class="column is-half-tablet is-one-quarter-desktop">
+              <article class="landing-feature">
+                <span class="landing-feature-icon" aria-hidden="true">📋</span>
+                <h3 class="title is-6">Lists &amp; watchlist</h3>
+                <p>Save films to watch later and curate shareable lists like “Best sci-fi.”</p>
+              </article>
             </div>
           </div>
         </section>
@@ -80,19 +118,33 @@
 
       <% if (trending && trending.length) { %>
         <section class="box mb-6" aria-labelledby="trending-heading">
-          <h2 id="trending-heading" class="title is-4">Trending Films</h2>
+          <h2 id="trending-heading" class="title is-4">
+            <%= user ? 'Trending Films' : 'Trending in the community' %>
+          </h2>
+          <% if (!user) { %>
+            <p class="has-text-grey mb-4">See what other film lovers are rating right now.</p>
+          <% } %>
           <div class="movie-grid">
             <% trending.forEach(({ film, average, count }) => { %>
               <div class="movie-card">
-                <a href="/films/<%= film._id %>">
+                <% if (user) { %>
+                  <a href="/films/<%= film._id %>">
+                    <%- include('partials/_moviePoster', { film, className: 'movie-card-poster', alt: film.title }) %>
+                  </a>
+                  <p class="title is-6"><a href="/films/<%= film._id %>"><%= film.title %></a></p>
+                <% } else { %>
                   <%- include('partials/_moviePoster', { film, className: 'movie-card-poster', alt: film.title }) %>
-                </a>
-                <p class="title is-6"><a href="/films/<%= film._id %>"><%= film.title %></a></p>
+                  <p class="title is-6"><%= film.title %></p>
+                <% } %>
                 <p class="has-text-grey is-size-7">★ <%= average %> (<%= count %>)</p>
               </div>
             <% }) %>
           </div>
-          <a href="/films" class="button is-light is-small mt-3">Discover more</a>
+          <% if (user) { %>
+            <a href="/films" class="button is-light is-small mt-3">Discover more</a>
+          <% } else { %>
+            <a href="/auth/sign-up" class="button is-primary is-small mt-3">Join to explore films</a>
+          <% } %>
         </section>
       <% } %>
 
@@ -103,11 +155,20 @@
           <p class="has-text-grey">No community reviews yet.</p>
           <% if (user) { %><a href="/films" class="button is-light is-small mt-3">Discover Films</a><% } %>
         <% } else { %>
+          <% if (!user) { %>
+            <p class="has-text-grey mb-4">Recent reviews from Scene It members.</p>
+          <% } %>
           <div class="review-list">
             <% latestReviewItems.forEach(review => { %>
-              <%- include('partials/_reviewCard', { review, badgeColorClass, ratingLabels }) %>
+              <%- include('partials/_reviewCard', { review, badgeColorClass, ratingLabels, guestMode: !user }) %>
             <% }) %>
           </div>
+          <% if (!user) { %>
+            <div class="landing-cta mt-5">
+              <p class="mb-3">Ready to start your own film diary?</p>
+              <a href="/auth/sign-up" class="button is-primary">Sign up free</a>
+            </div>
+          <% } %>
         <% } %>
       </section>
     </main>

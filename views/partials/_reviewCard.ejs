@@ -1,28 +1,44 @@
 <article class="review-card" aria-labelledby="review-<%= review._id %>-title">
-  <a
-    href="/films/<%= review.film._id %>"
-    class="review-card-poster-link"
-    aria-label="View <%= review.film.title %> details"
-  >
+  <% const isGuest = typeof guestMode !== 'undefined' && guestMode; %>
+  <% if (isGuest) { %>
     <%- include('./_moviePoster', {
       film: review.film,
       title: review.film.title,
       className: 'review-card-poster',
       alt: `Poster for ${review.film.title}`
     }) %>
-  </a>
+  <% } else { %>
+    <a
+      href="/films/<%= review.film._id %>"
+      class="review-card-poster-link"
+      aria-label="View <%= review.film.title %> details"
+    >
+      <%- include('./_moviePoster', {
+        film: review.film,
+        title: review.film.title,
+        className: 'review-card-poster',
+        alt: `Poster for ${review.film.title}`
+      }) %>
+    </a>
+  <% } %>
 
   <div class="review-card-body">
     <div class="review-card-header">
       <div>
         <% if (typeof showMovieTitle === 'undefined' || showMovieTitle) { %>
-          <a
-            href="/films/<%= review.film._id %>"
-            id="review-<%= review._id %>-title"
-            class="review-card-movie-title"
-          >
-            <%= review.film.title %>
-          </a>
+          <% if (isGuest) { %>
+            <strong id="review-<%= review._id %>-title" class="review-card-movie-title">
+              <%= review.film.title %>
+            </strong>
+          <% } else { %>
+            <a
+              href="/films/<%= review.film._id %>"
+              id="review-<%= review._id %>-title"
+              class="review-card-movie-title"
+            >
+              <%= review.film.title %>
+            </a>
+          <% } %>
         <% } else { %>
           <strong id="review-<%= review._id %>-title" class="review-card-reviewer"><%= review.user.username %></strong>
         <% } %>

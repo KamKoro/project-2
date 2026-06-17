@@ -1,67 +1,65 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const Review = require('../models/review');
 
 const passUserToView = require('../middleware/passUserToView.js');
 router.use(passUserToView);
 
 const User = require('../models/user.js');
 
-//* GET: SIGN-UP PAGE
-router.get("/sign-up", (req, res) => {
-  res.render("auth/sign-up.ejs", {
+router.get('/sign-up', (req, res) => {
+  res.render('auth/sign-up.ejs', {
     user: req.user || null,
+    error: req.query.error || '',
   });
 });
 
-//* GET: SIGN-IN PAGE
 router.get('/sign-in', (req, res) => {
-  res.render('auth/sign-in.ejs');
+  res.render('auth/sign-in.ejs', {
+    error: req.query.error || '',
+  });
 });
 
-//* GET: SIGN-OUT
 router.get('/sign-out', (req, res) => {
   req.session.destroy();
   res.redirect('/');
 });
 
-//* POST: SIGN-UP
 router.post('/sign-up', async (req, res) => {
   try {
     const userInDatabase = await User.findOne({ username: req.body.username });
     if (userInDatabase) {
-      return res.send("User already exists. Please go to the Sign-In page.");
+      return res.redirect('/auth/sign-up?error=exists');
     }
 
     if (req.body.password !== req.body.confirmPassword) {
-      return res.send('Password and Confirm Password do not match.');
+      return res.redirect('/auth/sign-up?error=mismatch');
     }
 
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-    req.body.password = hashedPassword;
+    const newUser = await User.create({
+      username: req.body.username,
+      password: hashedPassword,
+    });
 
-    const newUser = await User.create(req.body);
-
-    // Optionally auto-login after sign-up:
     req.session.user = {
       username: newUser.username,
-      _id: newUser._id
+      _id: newUser._id,
     };
-    req.session.isNewUser = true;
 
-    res.redirect('/');
+    res.redirect('/films/log?welcome=1');
   } catch (error) {
-    console.error("Sign-up error:", error);
-    res.redirect('/');
+    console.error('Sign-up error:', error);
+    res.redirect('/auth/sign-up?error=server');
   }
 });
 
-//* POST: SIGN-IN
 router.post('/sign-in', async (req, res) => {
   try {
     const userInDatabase = await User.findOne({ username: req.body.username });
     if (!userInDatabase) {
-      return res.send('Login failed. Please try again.');
+      return res.redirect('/auth/sign-in?error=invalid');
     }
 
     const validPassword = bcrypt.compareSync(
@@ -69,22 +67,20 @@ router.post('/sign-in', async (req, res) => {
       userInDatabase.password
     );
     if (!validPassword) {
-      return res.send('Login failed. Please try again.');
+      return res.redirect('/auth/sign-in?error=invalid');
     }
 
     req.session.user = {
       username: userInDatabase.username,
-      _id: userInDatabase._id
+      _id: userInDatabase._id,
     };
 
-    // Check if user has any movies
-    const hasMovies = userInDatabase.movies && userInDatabase.movies.length > 0;
-    req.session.isNewUser = !hasMovies;
-
-    res.redirect('/');
+    const reviewCount = await Review.countDocuments({ user: userInDatabase._id });
+    const redirectTo = reviewCount === 0 ? '/films/log?welcome=1' : '/';
+    res.redirect(redirectTo);
   } catch (error) {
-    console.error("Sign-in error:", error);
-    res.redirect('/');
+    console.error('Sign-in error:', error);
+    res.redirect('/auth/sign-in?error=server');
   }
 });
 

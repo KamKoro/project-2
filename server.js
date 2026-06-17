@@ -13,7 +13,6 @@ const { MongoStore } = require('connect-mongo');
 
 const filmsController = require('./controllers/filmsController');
 const usersController = require('./controllers/usersController');
-const listsController = require('./controllers/listsController');
 const socialController = require('./controllers/socialController');
 const moviesController = require('./controllers/moviesController');
 const authController = require('./controllers/authController');
@@ -21,6 +20,7 @@ const isSignedIn = require('./middleware/isSignedIn');
 const passUserToView = require('./middleware/passUserToView');
 const posterController = require('./controllers/posterController');
 const { renderHome } = require('./controllers/homeController');
+const peopleController = require('./controllers/peopleController');
 const notificationsController = require('./controllers/notificationsController');
 const { getUnreadCount } = require('./utilities/notifications');
 
@@ -123,8 +123,8 @@ app.use('/', posterController);
 app.use(isSignedIn);
 
 app.use('/', filmsController);
+app.use('/', peopleController);
 app.use('/', usersController);
-app.use('/', listsController);
 app.use('/', socialController);
 app.use('/', notificationsController);
 app.use('/', moviesController);

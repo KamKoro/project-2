@@ -4,15 +4,18 @@ const Film = require('../models/film');
 const Review = require('../models/review');
 const Watchlist = require('../models/watchlist');
 const User = require('../models/user');
-const { findOrCreateFilmFromTmdb, findOrCreateFilmManual, getFilmRatingStats } = require('../utilities/filmHelper');
+const { findOrCreateFilmFromTmdb, findOrCreateFilmFromLocal, findOrCreateFilmManual, getFilmRatingStats } = require('../utilities/filmHelper');
 const { computeUserStats } = require('../utilities/userStats');
 const { searchFilms, hasTmdb, backdropUrl } = require('../utilities/tmdb');
+const { searchLocalFilms, getLocalFilms, getLocalFilm, getLocalFilmsByDirector, getLocalFilmsByActor } = require('../utilities/localFilms');
+const { getLocalDirectors, getLocalActors } = require('../utilities/localPeople');
 const {
   getLatestCommunityReviews,
   getReviewsForFilm,
   getCommentsForReviews,
   getTrendingFilms,
 } = require('../utilities/communityReviews');
+const { buildSearchResults } = require('../utilities/searchHelper');
 
 function requireLogin(req, res, next) {
   if (!req.session.user) return res.redirect('/auth/sign-in');
@@ -30,6 +33,16 @@ const ratingLabels = {
   1: 'Awful', 2: 'Bad', 3: 'Poor', 4: 'Watchable', 5: 'Okay',
   6: 'Good', 7: 'Very Good', 8: 'Great', 9: 'Excellent', 10: 'Masterpiece',
 };
+
+router.get('/api/search', requireLogin, async (req, res) => {
+  try {
+    const results = await buildSearchResults(req.query.q, req.query.mode || 'all');
+    res.json(results);
+  } catch (err) {
+    console.error('Search API error:', err);
+    res.status(500).json({ groups: [] });
+  }
+});
 
 router.get('/films', requireLogin, async (req, res) => {
   try {
@@ -86,16 +99,37 @@ router.get('/films', requireLogin, async (req, res) => {
 
 router.get('/films/log', requireLogin, async (req, res) => {
   try {
-    const { q } = req.query;
-    let results = [];
+    const { q, director, actor, film: filmId } = req.query;
+    let tmdbResults = [];
     if (q && hasTmdb()) {
-      results = await searchFilms(q);
+      tmdbResults = await searchFilms(q);
+    }
+
+    let localFilms;
+    if (filmId) {
+      const film = getLocalFilm(filmId);
+      localFilms = film ? [film] : [];
+    } else if (director) {
+      localFilms = getLocalFilmsByDirector(director);
+    } else if (actor) {
+      localFilms = getLocalFilmsByActor(actor);
+    } else if (q) {
+      localFilms = searchLocalFilms(q);
+    } else {
+      localFilms = getLocalFilms();
     }
 
     res.render('films/log', {
       user: req.session.user,
       query: q || '',
-      results,
+      welcome: req.query.welcome === '1',
+      activeDirector: director || '',
+      activeActor: actor || '',
+      highlightFilm: filmId || '',
+      tmdbResults,
+      localFilms,
+      localDirectors: getLocalDirectors(),
+      localActors: getLocalActors(),
       hasTmdb: hasTmdb(),
     });
   } catch (err) {
@@ -114,6 +148,8 @@ router.post('/films/log', requireLogin, async (req, res) => {
     let film;
     if (req.body.tmdbId) {
       film = await findOrCreateFilmFromTmdb(parseInt(req.body.tmdbId, 10));
+    } else if (req.body.localFilmId) {
+      film = await findOrCreateFilmFromLocal(req.body.localFilmId);
     } else {
       film = await findOrCreateFilmManual({
         title: req.body.title,
@@ -174,9 +210,6 @@ router.get('/films/:filmId', requireLogin, async (req, res) => {
       film: film._id,
     });
 
-    const List = require('../models/list');
-    const userLists = await List.find({ user: req.session.user._id }).sort({ name: 1 });
-
     res.render('films/show', {
       film,
       user: req.session.user,
@@ -185,7 +218,6 @@ router.get('/films/:filmId', requireLogin, async (req, res) => {
       currentUserReview,
       commentsByReview,
       onWatchlist: Boolean(onWatchlist),
-      userLists,
       backdropUrl: backdropUrl(film.backdropPath),
       ratingLabels,
       badgeColorClass,

@@ -35,17 +35,6 @@
       <% } %>
     </section>
 
-    <% if (lists.length) { %>
-      <section class="box mb-5" aria-labelledby="lists-heading">
-        <h2 id="lists-heading" class="title is-4">Lists</h2>
-        <ul>
-          <% lists.forEach(list => { %>
-            <li><a href="/lists/<%= list._id %>"><%= list.name %></a> (<%= list.films.length %> films)</li>
-          <% }) %>
-        </ul>
-      </section>
-    <% } %>
-
     <section aria-labelledby="diary-heading">
       <h2 id="diary-heading" class="title is-4 mb-4">Recent activity</h2>
       <% if (!reviews.length) { %>

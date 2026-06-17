@@ -3,7 +3,6 @@ const router = express.Router();
 const User = require('../models/user');
 const Review = require('../models/review');
 const Watchlist = require('../models/watchlist');
-const List = require('../models/list');
 const { createNotification } = require('../utilities/notifications');
 
 function requireLogin(req, res, next) {
@@ -23,11 +22,6 @@ router.get('/profiles/:username', requireLogin, async (req, res) => {
       .populate('film')
       .sort({ watchedAt: -1 });
 
-    const lists = await List.find({
-      user: profileUser._id,
-      $or: [{ isPublic: true }, { user: req.session.user._id }],
-    }).sort({ createdAt: -1 });
-
     const currentUser = await User.findById(req.session.user._id).select('following');
     const isFollowing = currentUser.following.some(
       (id) => id.toString() === profileUser._id.toString()
@@ -44,7 +38,6 @@ router.get('/profiles/:username', requireLogin, async (req, res) => {
       user: req.session.user,
       profileUser,
       reviews: reviews.filter((r) => r.film),
-      lists,
       isFollowing,
       isOwnProfile,
       followerCount,

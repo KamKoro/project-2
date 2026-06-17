@@ -1,0 +1,43 @@
+<section class="box mb-5">
+  <form method="GET" action="<%= searchAction %>">
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <%- include('_searchDropdown', {
+          searchId: typeof searchInputId !== 'undefined' ? searchInputId : 'people-search',
+          searchLabel: searchLabel,
+          searchValue: query,
+          searchPlaceholder: searchPlaceholder,
+          searchAction: searchAction,
+          searchMode: searchMode
+        }) %>
+      </div>
+      <div class="control">
+        <label class="label">&nbsp;</label>
+        <button class="button is-primary" type="submit">Search</button>
+      </div>
+    </div>
+  </form>
+</section>
+
+<section aria-labelledby="people-results-heading">
+  <h2 id="people-results-heading" class="title is-4 mb-4"><%= resultsHeading %></h2>
+
+  <% if (!people.length) { %>
+    <div class="box has-text-centered">
+      <p class="has-text-grey">No results found<% if (query) { %> for "<%= query %>"<% } %>.</p>
+      <a href="<%= searchAction %>" class="button is-light is-small mt-3">View all</a>
+    </div>
+  <% } else { %>
+    <div class="people-results-list">
+      <% people.forEach(person => { %>
+        <article class="box people-result-card mb-4">
+          <h3 class="title is-5 mb-2">
+            <a href="<%= personPathPrefix %>/<%= person.id %>"><%= person.name %></a>
+          </h3>
+          <p class="has-text-grey"><%= person.bio %></p>
+          <a href="<%= personPathPrefix %>/<%= person.id %>" class="button is-light is-small mt-3">View films</a>
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+</section>

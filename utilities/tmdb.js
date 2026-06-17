@@ -1,3 +1,4 @@
+// Set TMDB_API_KEY in .env for live TMDB search; otherwise the local film catalog is used.
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p';

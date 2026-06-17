@@ -1,5 +1,6 @@
 const Film = require('../models/film');
 const { getFilmDetails } = require('./tmdb');
+const { getLocalFilm } = require('./localFilms');
 
 async function findOrCreateFilmFromTmdb(tmdbId) {
   const existing = await Film.findOne({ tmdbId });
@@ -27,6 +28,23 @@ async function findOrCreateFilmManual(data) {
     director: data.director || '',
     genre: data.genre || '',
     overview: data.overview || '',
+    cast: data.cast || [],
+  });
+}
+
+async function findOrCreateFilmFromLocal(localId) {
+  const localFilm = getLocalFilm(localId);
+  if (!localFilm) {
+    throw new Error('Local film not found');
+  }
+
+  return findOrCreateFilmManual({
+    title: localFilm.title,
+    releaseYear: localFilm.releaseYear,
+    director: localFilm.director,
+    genre: localFilm.genre,
+    overview: localFilm.overview,
+    cast: localFilm.cast,
   });
 }
 
@@ -55,6 +73,7 @@ async function getFilmRatingStats(filmId) {
 
 module.exports = {
   findOrCreateFilmFromTmdb,
+  findOrCreateFilmFromLocal,
   findOrCreateFilmManual,
   getFilmRatingStats,
 };

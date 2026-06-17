@@ -1,0 +1,37 @@
+<%
+  const inputId = typeof searchId !== 'undefined' ? searchId : 'search-input';
+  const listId = inputId + '-results';
+  const labelText = typeof searchLabel !== 'undefined' ? searchLabel : 'Search';
+  const showLabel = typeof searchShowLabel === 'undefined' ? true : searchShowLabel;
+  const inputValue = typeof searchValue !== 'undefined' ? searchValue : '';
+  const inputPlaceholder = typeof searchPlaceholder !== 'undefined' ? searchPlaceholder : 'Search...';
+  const searchMode = typeof searchMode !== 'undefined' ? searchMode : 'all';
+  const action = typeof searchAction !== 'undefined' ? searchAction : '';
+  const compact = typeof searchCompact !== 'undefined' ? searchCompact : false;
+%>
+<div
+  class="search-dropdown<%= compact ? ' search-dropdown--compact' : '' %>"
+  data-search-dropdown
+  data-search-mode="<%= searchMode %>"
+  <% if (action) { %>data-search-action="<%= action %>"<% } %>
+>
+  <% if (showLabel) { %>
+    <label class="label" for="<%= inputId %>"><%= labelText %></label>
+  <% } %>
+  <div class="search-dropdown-field">
+    <input
+      class="input<%= compact ? ' is-small' : '' %>"
+      type="search"
+      id="<%= inputId %>"
+      name="<%= typeof searchName !== 'undefined' ? searchName : 'q' %>"
+      value="<%= inputValue %>"
+      placeholder="<%= inputPlaceholder %>"
+      autocomplete="off"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-expanded="false"
+      aria-controls="<%= listId %>"
+    />
+    <div id="<%= listId %>" class="search-dropdown-panel" role="listbox" hidden></div>
+  </div>
+</div>

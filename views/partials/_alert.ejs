@@ -1,0 +1,5 @@
+<% if (typeof message !== 'undefined' && message) { %>
+  <div class="app-alert app-alert--<%= type || 'info' %>" role="status">
+    <%= message %>
+  </div>
+<% } %>

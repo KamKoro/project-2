@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <%- include('../partials/_headAssets') %>
+</head>
+<body>
+  <%- include('../partials/_navbar') %>
+
+  <main id="main-content" class="container mt-6">
+    <header class="mb-5">
+      <h1 class="title is-2"><%= pageTitle %></h1>
+      <p class="has-text-grey">Search our local director catalog and explore their films.</p>
+    </header>
+
+    <%- include('../partials/_peopleSearchResults', {
+      searchAction: '/directors',
+      searchLabel: 'Search directors',
+      searchPlaceholder: 'Name or bio...',
+      searchInputId: 'directors-search',
+      searchMode: 'directors',
+      query,
+      people,
+      resultsHeading: query ? `Results (${people.length})` : `All directors (${people.length})`,
+      personPathPrefix: '/directors'
+    }) %>
+  </main>
+</body>
+</html>

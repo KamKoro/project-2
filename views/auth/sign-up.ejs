@@ -15,6 +15,14 @@
     <section class="box" style="max-width: 500px; margin: 0 auto;">
       <h1 class="title is-3 has-text-centered mb-5">Create a New Account</h1>
 
+      <% if (error === 'exists') { %>
+        <div class="notification is-warning is-light mb-4">That username is already taken. Try another one.</div>
+      <% } else if (error === 'mismatch') { %>
+        <div class="notification is-danger is-light mb-4">Passwords do not match. Please try again.</div>
+      <% } else if (error === 'server') { %>
+        <div class="notification is-danger is-light mb-4">Something went wrong. Please try again.</div>
+      <% } %>
+
       <form action="/auth/sign-up" method="POST">
         <div class="field">
           <label class="label" for="username">Username</label>

@@ -21,8 +21,14 @@
       <form method="GET" action="/films" class="film-search-form">
         <div class="field is-grouped is-grouped-multiline">
           <div class="control is-expanded">
-            <label class="label" for="search-q">Search</label>
-            <input class="input" id="search-q" type="search" name="q" value="<%= query.q %>" placeholder="Title, director, or actor" />
+            <%- include('../partials/_searchDropdown', {
+              searchId: 'discover-search',
+              searchLabel: 'Search films',
+              searchValue: query.q,
+              searchPlaceholder: 'Title, director, or actor',
+              searchAction: '/films',
+              searchMode: 'all'
+            }) %>
           </div>
           <div class="control">
             <label class="label" for="search-genre">Genre</label>
@@ -51,6 +57,39 @@
           </div>
         </div>
       </form>
+    </section>
+
+    <section class="box mb-5">
+      <h2 class="title is-5 mb-3">Browse people</h2>
+      <div class="columns">
+        <div class="column">
+          <form method="GET" action="/directors">
+            <%- include('../partials/_searchDropdown', {
+              searchId: 'discover-director-search',
+              searchLabel: 'Directors',
+              searchPlaceholder: 'Search directors...',
+              searchAction: '/directors',
+              searchMode: 'directors'
+            }) %>
+            <button class="button is-light is-small mt-2" type="submit">Search directors</button>
+          </form>
+        </div>
+        <div class="column">
+          <form method="GET" action="/actors">
+            <%- include('../partials/_searchDropdown', {
+              searchId: 'discover-actor-search',
+              searchLabel: 'Actors',
+              searchPlaceholder: 'Search actors...',
+              searchAction: '/actors',
+              searchMode: 'actors'
+            }) %>
+            <button class="button is-light is-small mt-2" type="submit">Search actors</button>
+          </form>
+        </div>
+      </div>
+      <p class="has-text-grey is-size-7">
+        <a href="/directors">Browse all directors</a> · <a href="/actors">Browse all actors</a>
+      </p>
     </section>
 
     <% if (trending.length) { %>

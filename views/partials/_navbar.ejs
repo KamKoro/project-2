@@ -8,24 +8,41 @@
     </div>
     <div class="navbar-menu is-active">
       <div class="navbar-start">
-        <a href="/" class="navbar-item">Home</a>
         <% if (user) { %>
+          <a href="/" class="navbar-item">Home</a>
           <a href="/films" class="navbar-item">Discover</a>
-          <a href="/films/log" class="navbar-item">Log Film</a>
           <a href="/diary" class="navbar-item">Diary</a>
           <a href="/watchlist" class="navbar-item">Watchlist</a>
           <a href="/feed" class="navbar-item">Feed</a>
-          <a href="/lists" class="navbar-item">Lists</a>
+        <% } else { %>
+          <a href="/" class="navbar-item">Home</a>
+        <% } %>
+      </div>
+
+      <div class="navbar-end">
+        <% if (user) { %>
+          <div class="navbar-item navbar-search">
+            <form method="GET" action="/films">
+              <%- include('_searchDropdown', {
+                searchId: 'nav-search',
+                searchShowLabel: false,
+                searchCompact: true,
+                searchPlaceholder: 'Search films, people...',
+                searchAction: '/films',
+                searchMode: 'all'
+              }) %>
+            </form>
+          </div>
+          <div class="navbar-item">
+            <a href="/films/log" class="button is-primary is-small">Log Film</a>
+          </div>
           <a href="/notifications" class="navbar-item">
-            Notifications<% if (typeof unreadNotifications !== 'undefined' && unreadNotifications > 0) { %>
+            Alerts<% if (typeof unreadNotifications !== 'undefined' && unreadNotifications > 0) { %>
               <span class="nav-badge" aria-label="<%= unreadNotifications %> unread"><%= unreadNotifications %></span>
             <% } %>
           </a>
           <a href="/profiles/<%= user.username %>" class="navbar-item">Profile</a>
         <% } %>
-      </div>
-
-      <div class="navbar-end">
         <div class="navbar-item">
           <button
             type="button"
@@ -49,11 +66,11 @@
         </div>
         <div class="navbar-item">
           <% if (user) { %>
-            <a href="/auth/sign-out" class="button is-light">Sign Out</a>
+            <a href="/auth/sign-out" class="button is-light is-small">Sign Out</a>
           <% } else { %>
             <div class="buttons">
-              <a href="/auth/sign-in" class="button is-primary">Sign In</a>
-              <a href="/auth/sign-up" class="button is-light">Sign Up</a>
+              <a href="/auth/sign-in" class="button is-primary is-small">Sign In</a>
+              <a href="/auth/sign-up" class="button is-light is-small">Sign Up</a>
             </div>
           <% } %>
         </div>
@@ -62,3 +79,4 @@
   </div>
 </nav>
 <script src="/javascripts/theme-toggle.js"></script>
+<script src="/javascripts/search-dropdown.js" defer></script>

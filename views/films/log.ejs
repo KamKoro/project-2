@@ -10,69 +10,138 @@
   <%- include('../partials/_navbar') %>
 
   <main id="main-content" class="container mt-6">
-    <h1 class="title is-2 has-text-centered mb-5">Log a Film</h1>
+    <header class="mb-5 has-text-centered">
+      <h1 class="title is-2">Log a Film</h1>
+      <p class="has-text-grey">Search, pick from the catalog, and rate what you watched.</p>
+    </header>
 
-    <% if (hasTmdb) { %>
-      <section class="box mb-5">
-        <h2 class="title is-4">Search TMDB</h2>
-        <form method="GET" action="/films/log">
-          <div class="field has-addons">
-            <div class="control is-expanded">
-              <label class="label" for="tmdb-search">Film title</label>
-              <input class="input" id="tmdb-search" type="search" name="q" value="<%= query %>" placeholder="Search for a film..." />
-            </div>
-            <div class="control">
-              <label class="label">&nbsp;</label>
-              <button class="button is-primary" type="submit">Search</button>
-            </div>
-          </div>
-        </form>
-
-        <% if (results.length) { %>
-          <div class="tmdb-results mt-4">
-            <% results.forEach(result => { %>
-              <details class="box mb-3">
-                <summary class="tmdb-result-summary">
-                  <strong><%= result.title %></strong>
-                  <% if (result.release_date) { %> (<%= result.release_date.slice(0,4) %>)<% } %>
-                </summary>
-                <form action="/films/log" method="POST" class="mt-3">
-                  <input type="hidden" name="tmdbId" value="<%= result.id %>" />
-                  <p class="has-text-grey is-size-7 mb-3"><%= result.overview || 'No overview available.' %></p>
-                  <%- include('../partials/_ratingControl', { selectedRating: 0, labelId: 'rating-' + result.id, badgeId: 'badge-' + result.id, inputId: 'input-' + result.id }) %>
-                  <div class="field">
-                    <label class="label" for="watched-<%= result.id %>">Date watched</label>
-                    <input class="input" type="date" id="watched-<%= result.id %>" name="watchedAt" value="<%= new Date().toISOString().slice(0,10) %>" />
-                  </div>
-                  <div class="field">
-                    <label class="label" for="text-<%= result.id %>">Review</label>
-                    <textarea class="textarea" id="text-<%= result.id %>" name="text" rows="3" placeholder="Optional review"></textarea>
-                  </div>
-                  <button class="button is-primary" type="submit">Log & Review</button>
-                </form>
-              </details>
-            <% }) %>
-          </div>
-        <% } else if (query) { %>
-          <p class="has-text-grey mt-3">No TMDB results for "<%= query %>".</p>
-        <% } %>
-      </section>
-    <% } else { %>
-      <div class="notification is-warning">
-        Add <code>TMDB_API_KEY</code> to your <code>.env</code> for film search. You can still log manually below.
+    <% if (welcome) { %>
+      <div class="notification is-success is-light mb-5">
+        Welcome to Scene It! Search for a film below or pick one from the catalog to log your first watch.
       </div>
     <% } %>
 
-    <section class="box">
-      <h2 class="title is-4">Log manually</h2>
-      <form action="/films/log" method="POST">
+    <section class="box mb-5">
+      <form method="GET" action="/films/log">
+        <% if (activeDirector) { %><input type="hidden" name="director" value="<%= activeDirector %>" /><% } %>
+        <% if (activeActor) { %><input type="hidden" name="actor" value="<%= activeActor %>" /><% } %>
+        <div class="field has-addons">
+          <div class="control is-expanded">
+            <%- include('../partials/_searchDropdown', {
+              searchId: 'log-search',
+              searchLabel: 'What did you watch?',
+              searchValue: query,
+              searchPlaceholder: 'Film title, director, or actor...',
+              searchAction: '/films/log',
+              searchMode: 'log'
+            }) %>
+          </div>
+          <div class="control">
+            <label class="label">&nbsp;</label>
+            <button class="button is-primary" type="submit">Search</button>
+          </div>
+        </div>
+      </form>
+      <p class="has-text-grey is-size-7 mt-2">
+        Browse by <a href="/directors">director</a> or <a href="/actors">actor</a>.
+      </p>
+    </section>
+
+    <% if (hasTmdb && tmdbResults.length) { %>
+      <section class="box mb-5">
+        <h2 class="title is-4">TMDB results</h2>
+        <div class="tmdb-results">
+          <% tmdbResults.forEach(result => { %>
+            <details class="box mb-3">
+              <summary class="tmdb-result-summary">
+                <strong><%= result.title %></strong>
+                <% if (result.release_date) { %> (<%= result.release_date.slice(0,4) %>)<% } %>
+              </summary>
+              <form action="/films/log" method="POST" class="mt-3">
+                <input type="hidden" name="tmdbId" value="<%= result.id %>" />
+                <p class="has-text-grey is-size-7 mb-3"><%= result.overview || 'No overview available.' %></p>
+                <%- include('../partials/_ratingControl', { selectedRating: 0, labelId: 'rating-' + result.id, badgeId: 'badge-' + result.id, inputId: 'input-' + result.id }) %>
+                <div class="field">
+                  <label class="label" for="watched-<%= result.id %>">Date watched</label>
+                  <input class="input" type="date" id="watched-<%= result.id %>" name="watchedAt" value="<%= new Date().toISOString().slice(0,10) %>" />
+                </div>
+                <div class="field">
+                  <label class="label" for="text-<%= result.id %>">Review</label>
+                  <textarea class="textarea" id="text-<%= result.id %>" name="text" rows="3" placeholder="Optional review"></textarea>
+                </div>
+                <button class="button is-primary" type="submit">Log &amp; Review</button>
+              </form>
+            </details>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="box mb-5">
+      <% if (activeDirector || activeActor) { %>
+        <p class="mb-4">
+          <% if (activeDirector) { %>
+            <% const activeDirectorName = localDirectors.find(p => p.id === activeDirector)?.name; %>
+            Showing films by <strong><%= activeDirectorName %></strong>.
+          <% } else if (activeActor) { %>
+            <% const activeActorName = localActors.find(p => p.id === activeActor)?.name; %>
+            Showing films with <strong><%= activeActorName %></strong>.
+          <% } %>
+          <a href="/films/log" class="button is-small is-light ml-2">Clear filter</a>
+        </p>
+      <% } %>
+
+      <h2 class="title is-4">Catalog</h2>
+      <% if (!localFilms.length) { %>
+        <p class="has-text-grey">No films match your search. Try another title or add one manually below.</p>
+      <% } else { %>
+        <div class="local-film-list">
+          <% localFilms.forEach(film => { %>
+            <details class="box mb-3 local-film-item" <%= (highlightFilm === film.id) ? 'open' : '' %>>
+              <summary class="tmdb-result-summary">
+                <strong><%= film.title %></strong> (<%= film.releaseYear %>)
+                <span class="has-text-grey"> · <%= film.director %> · <%= film.genre %></span>
+              </summary>
+              <form action="/films/log" method="POST" class="mt-3">
+                <input type="hidden" name="localFilmId" value="<%= film.id %>" />
+                <p class="has-text-grey is-size-7 mb-3"><%= film.overview %></p>
+                <%- include('../partials/_ratingControl', {
+                  selectedRating: 0,
+                  labelId: 'local-rating-' + film.id,
+                  badgeId: 'local-badge-' + film.id,
+                  inputId: 'local-input-' + film.id
+                }) %>
+                <div class="field">
+                  <label class="label" for="local-watched-<%= film.id %>">Date watched</label>
+                  <input class="input" type="date" id="local-watched-<%= film.id %>" name="watchedAt" value="<%= new Date().toISOString().slice(0,10) %>" />
+                </div>
+                <div class="field">
+                  <label class="label" for="local-text-<%= film.id %>">Review</label>
+                  <textarea class="textarea" id="local-text-<%= film.id %>" name="text" rows="3" placeholder="Optional review"></textarea>
+                </div>
+                <button class="button is-primary" type="submit">Log &amp; Review</button>
+              </form>
+            </details>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <details class="box manual-entry">
+      <summary class="title is-5">Can't find it? Log manually</summary>
+      <form action="/films/log" method="POST" class="mt-4">
         <div class="field">
           <label class="label" for="title">Title</label>
           <input class="input" id="title" name="title" required />
         </div>
         <div class="field">
           <label class="label" for="director">Director</label>
-          <input class="input" id="director" name="director" />
+          <input class="input" id="director" name="director" list="director-options" />
+          <datalist id="director-options">
+            <% localDirectors.forEach(person => { %>
+              <option value="<%= person.name %>"></option>
+            <% }) %>
+          </datalist>
         </div>
         <div class="field">
           <label class="label" for="releaseYear">Release year</label>
@@ -86,14 +155,19 @@
           <label class="label" for="watchedAt-manual">Date watched</label>
           <input class="input" type="date" id="watchedAt-manual" name="watchedAt" value="<%= new Date().toISOString().slice(0,10) %>" />
         </div>
-        <%- include('../partials/_ratingControl', { selectedRating: 0 }) %>
+        <%- include('../partials/_ratingControl', {
+          selectedRating: 0,
+          labelId: 'manual-rating-label',
+          badgeId: 'manual-rating-badge',
+          inputId: 'manual-rating-value'
+        }) %>
         <div class="field">
           <label class="label" for="text-manual">Review</label>
           <textarea class="textarea" id="text-manual" name="text" rows="4"></textarea>
         </div>
         <button class="button is-primary" type="submit">Log Film</button>
       </form>
-    </section>
+    </details>
   </main>
 </body>
 </html>

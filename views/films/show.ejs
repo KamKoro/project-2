@@ -63,15 +63,6 @@
               <%= onWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist' %>
             </button>
           </form>
-          <% if (userLists && userLists.length) { %>
-            <% userLists.forEach(list => { %>
-              <form action="/lists/<%= list._id %>/films/<%= film._id %>" method="POST">
-                <input type="hidden" name="redirect" value="/films/<%= film._id %>" />
-                <button type="submit" class="button is-light is-small">+ <%= list.name %></button>
-              </form>
-            <% }) %>
-          <% } %>
-          <a href="/lists/new" class="button is-light is-small">New List</a>
         </div>
       </div>
     </div>
@@ -107,12 +98,6 @@
           <% } %>
         </div>
       </form>
-
-      <% if (currentUserReview) { %>
-        <form action="/lists" method="GET" class="mt-3">
-          <p class="has-text-grey is-size-7">Tip: create a list from the Lists page, then add this film from the list view.</p>
-        </form>
-      <% } %>
     </section>
 
     <% if (currentUserReview) { %>

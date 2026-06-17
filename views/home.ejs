@@ -11,24 +11,45 @@
 
     <main id="main-content" class="container mt-6">
       <% if (user) { %>
-        <h1 class="has-text-centered mb-5">Welcome, <%= user.username %></h1>
+        <%- include('partials/_quickActions') %>
 
-        <section class="movie-stats box mb-6" aria-labelledby="stats-heading">
-          <h2 id="stats-heading" class="title is-4">Your Stats</h2>
-          <ul>
-            <li><strong>Films watched:</strong> <%= stats.reviewCount %></li>
-            <li><strong>This year:</strong> <%= stats.filmsThisYear %></li>
-            <li><strong>Average rating:</strong> ★ <%= stats.avgRating %></li>
-            <% if (stats.favoriteGenre) { %>
-              <li><strong>Favorite genre:</strong> <%= stats.favoriteGenre %></li>
-            <% } %>
-            <li><strong>Watchlist:</strong> <%= watchlistCount %> film<%= watchlistCount === 1 ? '' : 's' %></li>
-          </ul>
-          <div class="buttons mt-3">
-            <a href="/films/log" class="button is-primary is-small">Log a Film</a>
-            <a href="/diary" class="button is-light is-small">View Diary</a>
-          </div>
-        </section>
+        <% if (movieCount === 0) { %>
+          <section class="add-movie-prompt box mb-6" aria-labelledby="add-first-heading">
+            <h2 id="add-first-heading" class="title is-4 has-text-centered">Start your film diary</h2>
+            <p class="has-text-centered has-text-grey">Log your first film to unlock stats, your diary, and community reviews.</p>
+            <div class="has-text-centered mt-4">
+              <a href="/films/log?welcome=1" class="button is-primary is-large">Log your first film</a>
+            </div>
+          </section>
+        <% } else { %>
+          <section class="movie-stats box mb-6" aria-labelledby="stats-heading">
+            <h2 id="stats-heading" class="title is-4">Your Stats</h2>
+            <ul>
+              <li><strong>Films watched:</strong> <%= stats.reviewCount %></li>
+              <li><strong>This year:</strong> <%= stats.filmsThisYear %></li>
+              <li><strong>Average rating:</strong> ★ <%= stats.avgRating %></li>
+              <% if (stats.favoriteGenre) { %>
+                <li><strong>Favorite genre:</strong> <%= stats.favoriteGenre %></li>
+              <% } %>
+              <li><strong>Watchlist:</strong> <%= watchlistCount %> film<%= watchlistCount === 1 ? '' : 's' %></li>
+            </ul>
+          </section>
+
+          <% if (reviews && reviews.length) { %>
+            <section class="recent-movies box mb-6" aria-labelledby="recent-heading">
+              <h2 id="recent-heading" class="title is-4">Recently Watched</h2>
+              <ul>
+                <% reviews.slice(0, 5).forEach(r => { %>
+                  <li>
+                    <a href="/films/<%= r.film._id %>"><%= r.film.title %></a>
+                    — ★ <%= r.rating %>/10
+                  </li>
+                <% }) %>
+              </ul>
+              <a href="/diary" class="button is-light is-small mt-3">View full diary</a>
+            </section>
+          <% } %>
+        <% } %>
 
         <% if (feed && feed.length) { %>
           <section class="box mb-6" aria-labelledby="feed-heading">
@@ -39,30 +60,6 @@
               <% }) %>
             </div>
             <a href="/feed" class="button is-light is-small mt-3">View full feed</a>
-          </section>
-        <% } %>
-
-        <% if (reviews && reviews.length) { %>
-          <section class="recent-movies box mb-6" aria-labelledby="recent-heading">
-            <h2 id="recent-heading" class="title is-4">Recently Watched</h2>
-            <ul>
-              <% reviews.slice(0, 5).forEach(r => { %>
-                <li>
-                  <a href="/films/<%= r.film._id %>"><%= r.film.title %></a>
-                  — ★ <%= r.rating %>/10
-                </li>
-              <% }) %>
-            </ul>
-          </section>
-        <% } %>
-
-        <% if (movieCount === 0) { %>
-          <section class="add-movie-prompt box mb-6" aria-labelledby="add-first-heading">
-            <h2 id="add-first-heading" class="title is-4 has-text-centered">Log Your First Film</h2>
-            <p class="has-text-centered">Search TMDB or log manually to start your diary.</p>
-            <div class="has-text-centered">
-              <a href="/films/log" class="button is-primary is-large">Log a Film</a>
-            </div>
           </section>
         <% } %>
 
@@ -88,7 +85,7 @@
               <article class="landing-feature">
                 <span class="landing-feature-icon" aria-hidden="true">🎬</span>
                 <h3 class="title is-6">Log &amp; rate</h3>
-                <p>Search TMDB or add films manually. Rate 1–10 and write reviews with watch dates.</p>
+                <p>Search TMDB or pick from the built-in catalog. Rate 1–10 and write reviews with watch dates.</p>
               </article>
             </div>
             <div class="column is-half-tablet is-one-quarter-desktop">
@@ -108,8 +105,8 @@
             <div class="column is-half-tablet is-one-quarter-desktop">
               <article class="landing-feature">
                 <span class="landing-feature-icon" aria-hidden="true">📋</span>
-                <h3 class="title is-6">Lists &amp; watchlist</h3>
-                <p>Save films to watch later and curate shareable lists like “Best sci-fi.”</p>
+                <h3 class="title is-6">Watchlist</h3>
+                <p>Save films to watch later and keep track of what you want to see next.</p>
               </article>
             </div>
           </div>
